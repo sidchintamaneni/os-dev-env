@@ -1,0 +1,6 @@
+[submodule "bpf"]
+	path = bpf
+	url = git@github.com:sidchintamaneni/bpf.git
+[submodule "linux"]
+	path = linux
+	url = git@github.com:sidchintamaneni/linux.git
