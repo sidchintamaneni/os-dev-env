@@ -9,8 +9,9 @@
 #include "syscall.h"
 
 #define CHARDEV_PATH "/dev/chardev"
+#define THREAD_COUNT 2
 
-int chardev_init() {
+void *chardev_init(void *args) {
 	int chardev_fd = -1;
 	int err;
 
@@ -26,15 +27,29 @@ int chardev_init() {
 		goto err_ioctl;
 	}
 
-
+	exit(1);
 err_ioctl:
 	close(chardev_fd);
 err_chardev_fd:
-	return err;
+	return NULL;
 }
 
 int main() {
 	
-	chardev_init();
+	pthread_t thr[THREAD_COUNT];
+	int err;
+
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		err = pthread_create(&thr[i], NULL, chardev_init, NULL);
+		sleep(0.2);
+		if(err) {
+			fprintf(stderr, "Thread Creation Failed\n");
+		}
+	}
+
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		pthread_join(thr[i], NULL);
+	}
+
 	return 0;
 }

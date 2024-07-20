@@ -3,6 +3,7 @@
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/err.h>
+#include <linux/delay.h>
 
 #include "chardev.h"
 
@@ -33,8 +34,27 @@ static int chardev_create(struct file *file, unsigned int cmd, unsigned long arg
 
 	pr_info("Current %d, chardev_create function"
 			" starts here..\n", current->pid);
+	
+	if (signal_pending(current)) {
+		goto err_out;	
+	}
+
+	if (signal_pending(current)) {
+		goto err_out;	
+	}
+
+	if (signal_pending(current)) {
+		goto err_out;	
+	}
+	pr_info("Current %d, chardev_create function"
+			" ends here..\n", current->pid);
 
 	return 0;
+err_out:
+	
+	pr_info("Current %d, chardev_create function"
+			" ends with error %d\n", current->pid, -EINTR);
+	return -EINTR;
 }
 
 
