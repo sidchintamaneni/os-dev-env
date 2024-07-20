@@ -40,4 +40,4 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y qemu-kvm libvirt-clients l
 
 # Essentials
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping kmod

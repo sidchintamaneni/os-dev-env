@@ -84,21 +84,6 @@ host() {
 		-kernel "$kernel" \
 		-append "$cmdline" -s
 
-	# qemu-system-x86_64 \
-	# 	-nodefaults \
-	# 	-d int \
-	# 	-machine accel=tcg \
-	# 	-watchdog i6300esb \
-	# 	-device virtio-rng-pci \
-	# 	-cpu max \
-	# 	-smp $NRCPU \
-	# 	-m $MEMORY \
-	# 	$fs \
-	# 	$console \
-	# 	$net \
-	# 	$QEMUARG \
-	# 	-kernel "$kernel" \
-	# 	-append "$cmdline" -s
 }
 
 say() {
@@ -258,7 +243,6 @@ export KERNEL=$KERNEL
 export PATH=\$HOME/local/bin:\$PATH
 export PATH=\$KERNEL/tools/bpf/bpftool:\$PATH
 export PATH=\$KERNEL/tools/perf:\$PATH
-export LD_LIBRARY_PATH=/inner_unikernels/libiu:/inner_unikernels/tools/lib/bpf:$LD_LIBRARY_PATH
 EOF
 
 	cat << EOF >> $HOME/.bashrc
@@ -273,7 +257,7 @@ source $KERNEL/tools/bpf/bpftool/bash-completion/bpftool
 eval \$(resize)
 EOF
 
-	cd $KERNEL
+	cd OS-Dev-Env 
 
 	if [ -n "$ARGS" ]; then
 		say non-interactive bash script
