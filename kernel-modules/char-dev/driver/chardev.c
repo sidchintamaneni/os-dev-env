@@ -48,6 +48,7 @@ struct chardev_ioctl_desc {
 		            .flags = _flags,		\
 		            .name = #ioctl }		\
 
+
 static int chardev_create(struct file *file, unsigned int cmd, void *data)
 {
 
@@ -221,6 +222,14 @@ static int chardev_release(struct inode *inode, struct file *file)
 	pr_info("Current %d, chardev_release function"
 			" starts here..\n", current->pid);
 	struct chardev_process *chardev_proc = file->private_data;
+
+	if (!chardev_proc)
+		return 0;
+
+	if (!chardev_proc->chardev_init_ptr) {
+		kfree(chardev_proc);
+		return 0;
+	}
 
 	if (chardev_proc->chardev_init_ptr->init_type == CHARDEV_KERNEL_CTXT) {
 		pr_info("Current %d, chardev_release function"
