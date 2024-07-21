@@ -11,7 +11,7 @@
 #include "syscall.h"
 
 #define CHARDEV_PATH "/dev/chardev"
-#define THREAD_COUNT 1
+#define THREAD_COUNT 2
 
 #define CHARDEV_USER_CTXT 0xdeadbeef
 #define CHARDEV_KERNEL_CTXT 0xdeaddead
@@ -63,9 +63,9 @@ void *chardev_init(void *args) {
 			chardev_user_args.init_type, chardev_mmap_ptr, *(__u32 *)chardev_mmap_ptr);
 	// Check the string bytes stored in chardev_mmap_ptr
 
+	exit(1);
 	munmap(chardev_mmap_ptr, 4096);
 
-	//exit(1);
 err_ioctl:
 	close(chardev_fd);
 err_chardev_fd:
@@ -79,7 +79,7 @@ int main() {
 
 	for (int i = 0; i < THREAD_COUNT; i++) {
 		err = pthread_create(&thr[i], NULL, chardev_init, NULL);
-		sleep(0.2);
+		sleep(0.5);
 		if(err) {
 			fprintf(stderr, "Thread Creation Failed\n");
 		}
