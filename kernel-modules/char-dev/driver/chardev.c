@@ -31,6 +31,7 @@ struct chardev_init_args {
 struct chardev_process {
 	struct chardev_init_args *chardev_init_ptr;
 	void *chardev_mmap_ptr;
+	struct task_struct *lead_thread;
 };
 
 typedef int chardev_ioctl_t(struct file *file, unsigned int cmd, void *data);
@@ -209,6 +210,8 @@ static int chardev_open(struct inode *inode, struct file *file)
 			" starts here..\n", current->pid);
 	
 	struct chardev_process *chardev_proc = kzalloc(sizeof(struct chardev_process), GFP_KERNEL);
+	chardev_proc->lead_thread = current->group_leader;
+	get_task_struct(chardev_proc->lead_thread);
 
 	file->private_data = chardev_proc;
 		
@@ -236,6 +239,7 @@ static int chardev_release(struct inode *inode, struct file *file)
 			" releasing chardev_mmap_ptr..\n", current->pid);
 		kfree(chardev_proc->chardev_mmap_ptr);	
 	}
+	put_task_struct(chardev_proc->lead_thread);
 
 	kfree(chardev_proc);
 	pr_info("Current %d, chardev_release function"
