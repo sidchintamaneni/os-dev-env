@@ -5,6 +5,8 @@
 #include <linux/err.h>
 #include <linux/delay.h>
 #include <linux/mm.h>
+#include <linux/kthread.h>
+#include <asm/mwait.h>
 #include <asm/io.h>
 
 #include "chardev.h"
@@ -49,6 +51,18 @@ struct chardev_ioctl_desc {
 		            .flags = _flags,		\
 		            .name = #ioctl }		\
 
+static int kthread_function(void *args)
+{
+	pr_info("Current %d, kthread_function function"
+			" starts here..\n", current->pid);
+	unsigned long *test = (unsigned long *) args;
+        msleep(30000);
+
+        *test = 0x0;
+	pr_info("Current %d, kthread_function function"
+			" ends here..\n", current->pid);
+	return 0;
+}
 
 static int chardev_create(struct file *file, unsigned int cmd, void *data)
 {
@@ -62,6 +76,29 @@ static int chardev_create(struct file *file, unsigned int cmd, void *data)
 			" receiving data from userspace %x..\n", current->pid, 
 			chardev_kernel_args->init_type);
 
+	// Do MONITOR and MWAIT Instruction Testing
+	unsigned long *test_mwait = kzalloc(sizeof(unsigned long), GFP_KERNEL);
+        if (test_mwait) {
+                *test_mwait = (unsigned long) 0xdeadbeef;
+                kthread_run(kthread_function, (void *)test_mwait, "kthread_function");
+                while (*test_mwait != 0) {
+			pr_info("Current %d, chardev_create function"
+				"Monitor/Mwait interface starts here\n", current->pid);
+                        mb();
+                        __monitor((void *)test_mwait, 0, 0);
+                        mb();
+			pr_info("Current %d, chardev_create function"
+				"the value of test_mwait %lx before mwait\n", current->pid, *test_mwait);
+                        if (*test_mwait != 0) {
+                                __mwait(0, 0);
+                                mb();
+                        }
+			pr_info("Current %d, chardev_create function"
+				"the value of test_mwait %lx after mwait\n", current->pid, *test_mwait);
+			pr_info("Current %d, chardev_create function"
+				"Monitor/Mwait interface ends here\n", current->pid);
+                }
+        }
 	// Multi threading syscall interruption testing
 	if (signal_pending(current)) {
 		goto err_out;	

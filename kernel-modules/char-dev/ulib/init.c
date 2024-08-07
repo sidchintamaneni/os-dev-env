@@ -63,7 +63,7 @@ void *chardev_init(void *args) {
 			chardev_user_args.init_type, chardev_mmap_ptr, *(__u32 *)chardev_mmap_ptr);
 	// Check the string bytes stored in chardev_mmap_ptr
 
-	exit(1);
+//	exit(1);
 	munmap(chardev_mmap_ptr, 4096);
 
 err_ioctl:
