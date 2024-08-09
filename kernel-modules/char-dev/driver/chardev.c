@@ -90,7 +90,7 @@ static int chardev_create(struct file *file, unsigned int cmd, void *data)
 			pr_info("Current %d, chardev_create function"
 				"the value of test_mwait %lx before mwait\n", current->pid, *test_mwait);
                         if (*test_mwait != 0) {
-                                __mwait(0, 0);
+                                __mwait(1, 0);
                                 mb();
                         }
 			pr_info("Current %d, chardev_create function"
