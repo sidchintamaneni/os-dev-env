@@ -4,3 +4,6 @@
 [submodule "linux"]
 	path = linux
 	url = git@github.com:sidchintamaneni/linux.git
+[submodule "tools/retsnoop"]
+	path = tools/retsnoop
+	url = git@github.com:anakryiko/retsnoop.git
