@@ -1,0 +1,11 @@
+#ifndef CHARDEV_IOCTL_H
+#define CHARDEV_IOCTL_H
+
+#include <sys/ioctl.h>
+
+#define CHARDEV_IOC_MAGIC 'C'
+
+#define CHARDEV_IOC_CLEAR_ON_READ _IO(CHARDEV_IOC_MAGIC, 1)
+#define CHARDEV_IOC_NO_CLEAR _IO(CHARDEV_IOC_MAGIC, 2)
+
+#endif  // CHARDEV_IOCTL_H
