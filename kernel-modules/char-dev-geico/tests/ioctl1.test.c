@@ -11,6 +11,10 @@
 #define CHARDEV_PATH "/dev/chardev"
 #define BUFFER_SIZE 64
 
+/*
+ * Test ioctl interface
+ */
+
 int main() {
     int chardev_fd, err;
     ssize_t bytes_written, bytes_read; 
@@ -65,6 +69,10 @@ int main() {
 
     bytes_read = read(chardev_fd, tmp_buf, BUFFER_SIZE);
     char tmp2_buf[64] = {0};
+
+    /* Checking whether the buffer is clear
+     * after the read 
+     */
     if (memcmp(wr_buf, rd_buf, BUFFER_SIZE) == 0 && memcmp(tmp_buf, tmp2_buf, BUFFER_SIZE) == 0) {
         fprintf(stdout, "Testcase - PASSED\n");
     } else {

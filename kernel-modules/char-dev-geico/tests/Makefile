@@ -7,7 +7,10 @@ all: $(TESTS)
 $(TESTS) : % : %.c
 	gcc $< -o $@
 
-.PHONY : clean
+.PHONY : clean run_tests
 
 clean :
 	rm $(TESTS)
+
+run_tests:
+	./run_tests.sh

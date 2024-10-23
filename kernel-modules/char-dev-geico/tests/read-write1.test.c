@@ -10,6 +10,10 @@
 #define CHARDEV_PATH "/dev/chardev"
 #define BUFFER_SIZE 1024
 
+/*
+ * Testing read and write syscall by filling the entire
+ * buffer
+ */ 
 int main() {
     int chardev_fd, err;
     ssize_t bytes_written, bytes_read; 
@@ -36,8 +40,6 @@ int main() {
     bytes_written = write(chardev_fd, wr_buf, BUFFER_SIZE);
     bytes_read = read(chardev_fd, rd_buf, BUFFER_SIZE);
     
-   // fprintf(stdout, "bytes_written %ld, write buffer: %lx\n", bytes_written, *((unsigned long *)wr_buf));
-   // fprintf(stdout, "bytes_read %ld, read buffer: %lx\n", bytes_read, *((unsigned long *)rd_buf));
     if (memcmp(wr_buf, rd_buf, BUFFER_SIZE) == 0) {
         fprintf(stdout, "Testcase - PASSED\n");
     } else {

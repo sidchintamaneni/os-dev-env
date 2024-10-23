@@ -14,6 +14,9 @@
 int chardev_fd;
 char *wr_buf, *rd_buf;
 
+/*
+ * Avoiding userspace mutexes to test driver locks
+ */ 
 void *write_function() {
     
     ssize_t bytes_written; 
@@ -23,7 +26,7 @@ void *write_function() {
     }
     memset(wr_buf, 0xAF, BUFFER_SIZE);
 
-    //fprintf(stdout, "started write syscall in thread1\n");
+//    fprintf(stdout, "started write syscall in thread1\n");
     bytes_written = write(chardev_fd, wr_buf, BUFFER_SIZE);
 }
 
@@ -33,9 +36,9 @@ void *read_function() {
     if (!rd_buf) {
         exit(0);
     }
+    memset(rd_buf, 0xAA, BUFFER_SIZE);
 
-    sleep(0.1);
-    //fprintf(stdout, "started read syscall in thread2\n");
+//    fprintf(stdout, "started read syscall in thread2\n");
     bytes_read = read(chardev_fd, rd_buf, BUFFER_SIZE);
 }
 
@@ -48,6 +51,7 @@ int main() {
         fprintf(stderr, "Failed to open the file\n");
         return -1;
     }
+
 
     err = pthread_create(&tid1, NULL, write_function, NULL);
     if(err < 0) {
@@ -66,12 +70,21 @@ int main() {
     pthread_join( tid1, NULL);
     pthread_join( tid2, NULL); 
 
+    char tmp[BUFFER_SIZE];
+    memset(tmp, 0xAA, BUFFER_SIZE);
+
     if (memcmp(wr_buf, rd_buf, BUFFER_SIZE) == 0) {
-        fprintf(stdout, "Testcase - PASSED\n");
+        fprintf(stdout, "Testcase - PASSED (WRITE happend first)\n");
     } else {
-        fprintf(stdout, "Testcase - FAILED\n");
+        size_t bytes_read = read(chardev_fd, rd_buf, BUFFER_SIZE);
     }
 
+    if (memcmp(wr_buf, rd_buf, BUFFER_SIZE) == 0) {
+        fprintf(stdout, "Testcase - PASSED\n");
+    } else {        
+        fprintf(stdout, "Testcase - FAILED\n");
+    }
+    
     close(chardev_fd);
     return err;
 

@@ -24,15 +24,12 @@ static struct device *chardev;
 struct internal_buffer {
     char *start;
     char *end;
-//    char *reader;
-//    char *writer;
     struct mutex buffer_lock;
 };
 
 struct chardev_process {
     struct internal_buffer *device_buffer;
     bool clear_on_read;
-    //struct task_struct *lead_thread;
 };
 
 static ssize_t chardev_read(struct file *file, char __user *buf,
@@ -54,6 +51,10 @@ static ssize_t chardev_read(struct file *file, char __user *buf,
 
     mutex_lock(&device_buffer->buffer_lock);
 
+    /*
+     * If read past the internal buffer capacity then
+     * read returns data from ppos till buffer size
+     */ 
     if (count + *ppos >= BUFFER_SIZE) {
         bytes_read = BUFFER_SIZE - *ppos;
     } else {
@@ -106,11 +107,14 @@ static ssize_t chardev_write(struct file *file, const char __user *buf,
         return -EFAULT;
 
     mutex_lock(&device_buffer->buffer_lock);
+    /*
+     *  If buffer is size is exceeded write will
+     *  overwrite the contents at the start
+     */ 
     while (count + *ppos >= BUFFER_SIZE) {
         size_t bytes_to_write = BUFFER_SIZE - *ppos;
         if (copy_from_user(device_buffer->start + *ppos, buf + bytes_written, bytes_to_write) != 0) {
-            mutex_unlock(&device_buffer->buffer_lock);
-            return -EFAULT;
+            goto err_copy_from_user;
         }
         *ppos = 0;
         count -= bytes_to_write;
@@ -119,8 +123,7 @@ static ssize_t chardev_write(struct file *file, const char __user *buf,
 
     if (count > 0) {
         if (copy_from_user(device_buffer->start + *ppos, buf + bytes_written, count) != 0) {
-            mutex_unlock(&device_buffer->buffer_lock);
-            return -EFAULT;
+            goto err_copy_from_user;
         }
         *ppos = count;
         bytes_written += count;
@@ -133,6 +136,10 @@ static ssize_t chardev_write(struct file *file, const char __user *buf,
 #endif
     mutex_unlock(&device_buffer->buffer_lock);
     return bytes_written;
+
+err_copy_from_user:
+    mutex_unlock(&device_buffer->buffer_lock);
+    return -EFAULT;
 }
 
 static loff_t chardev_llseek(struct file *file, loff_t off, int whence)
@@ -165,16 +172,17 @@ static loff_t chardev_llseek(struct file *file, loff_t off, int whence)
             new_pos = BUFFER_SIZE + off;
             break;
         default:
-            return -EINVAL;
-
+            goto err_inval_pos;
     }
+    /*
+     * If updated position is < 0 or > Internal buffer size
+     * lseek will return -EINVAL
+     */
     if (new_pos < 0) { 
-        mutex_unlock(&device_buffer->buffer_lock);
-        return -EINVAL;
+            goto err_inval_pos;
     }
-    else if (new_pos > BUFFER_SIZE) {// TODO: is it ok todo this way or we should wrap it
-        mutex_unlock(&device_buffer->buffer_lock);
-        return -EINVAL;
+    else if (new_pos >= BUFFER_SIZE) {
+            goto err_inval_pos;
     }
 
     file->f_pos = new_pos;
@@ -184,6 +192,9 @@ static loff_t chardev_llseek(struct file *file, loff_t off, int whence)
     mutex_unlock(&device_buffer->buffer_lock);
     return new_pos;
 
+err_inval_pos:
+    mutex_unlock(&device_buffer->buffer_lock);
+    return -EINVAL;
 }
 
 static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
@@ -202,6 +213,12 @@ static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg
     if (!device_buffer)
         return -EFAULT;
     mutex_lock(&device_buffer->buffer_lock);
+    /*
+     * ioctl supports
+     *      - CHARDEV_IOC_CLEAR_ON_READ
+     *          - clears the buffer memory which has been read
+     *      - CHARDEV_IOC_NO_CLEAR
+     */
     switch (cmd) {
         case CHARDEV_IOC_CLEAR_ON_READ:
 #ifdef DEBUG_INFO
@@ -248,12 +265,8 @@ static int chardev_open(struct inode *inode, struct file *file)
     }
 
     device_buffer->end = device_buffer->start + BUFFER_SIZE;
-//    device_buffer->reader = device_buffer->writer = device_buffer->start;
-
     mutex_init(&device_buffer->buffer_lock);
 
-   // cdev_proc->lead_thread = current->group_leader;
-   // get_task_struct(cdev_proc->lead_thread);
     cdev_proc->device_buffer = device_buffer;
     cdev_proc->clear_on_read = false;
 
@@ -281,7 +294,6 @@ static int chardev_release(struct inode *inode, struct file *file)
     
     kfree(cdev_proc->device_buffer->start);
     kfree(cdev_proc->device_buffer);
-//    put_task_struct(cdev_proc->lead_thread);
     kfree(cdev_proc);
 
 

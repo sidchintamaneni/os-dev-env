@@ -7,6 +7,9 @@
 
 #define CHARDEV_PATH "/dev/chardev"
 
+/*
+ * Test file descriptor
+ */
 int main() {
     int chardev_fd;
 
