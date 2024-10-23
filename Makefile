@@ -12,22 +12,22 @@ docker: .ALWAYS
 qemu-run: 
 	docker run --privileged --rm \
 	--device=/dev/kvm:/dev/kvm --device=/dev/net/tun:/dev/net/tun \
-	-v ${BASE_PROJ}:/OS-Dev-Env -v ${LINUX}:/linux \
+	-v ${BASE_PROJ}:/os-dev-env -v ${LINUX}:/linux \
 	-w /linux \
 	-p 127.0.0.1:${SSH_PORT}:52222 \
 	-it runtime:latest \
-	/OS-Dev-Env/q-script/yifei-q -s
+	/os-dev-env/q-script/yifei-q -s
 
 # mapping the gdb port 1234 from docker container 
 qemu-run-gdb: 
 	docker run --privileged --rm \
 	--device=/dev/kvm:/dev/kvm --device=/dev/net/tun:/dev/net/tun \
-	-v ${BASE_PROJ}:/OS-Dev-Env -v ${LINUX}:/linux \
+	-v ${BASE_PROJ}:/os-dev-env -v ${LINUX}:/linux \
 	-w /linux \
 	-p 127.0.0.1:${SSH_PORT}:52222 \
 	-p 127.0.0.1:1234:1234 \
 	-it runtime:latest \
-	/OS-Dev-Env/q-script/yifei-q -s
+	/os-dev-env/q-script/yifei-q -s
 
 # connect running qemu by ssh
 qemu-ssh:
@@ -50,7 +50,6 @@ headers-install:
 
 modules-install: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux runtime  make -j`nproc` modules
-	sudo docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux runtime  make -j`nproc` modules_install
 
 kernel:
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux runtime  make -j`nproc` 
@@ -67,5 +66,5 @@ bpf-samples-clean:
 
 # Target to enter docker container
 enter-docker:
-	docker run --rm -u ${USER_ID} -v ${BASE_PROJ}:/OS-Dev-Env -w /OS-Dev-Env -it runtime /bin/bash
+	docker run --rm -u ${USER_ID} -v ${BASE_PROJ}:/os-dev-env -w /os-dev-env -it runtime /bin/bash
 

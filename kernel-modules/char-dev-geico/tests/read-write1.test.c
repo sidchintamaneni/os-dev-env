@@ -31,6 +31,8 @@ int main() {
         free(wr_buf);
         goto err_malloc;
     }
+    memset(wr_buf, 0xAF, BUFFER_SIZE);
+    
     bytes_written = write(chardev_fd, wr_buf, BUFFER_SIZE);
     bytes_read = read(chardev_fd, rd_buf, BUFFER_SIZE);
     

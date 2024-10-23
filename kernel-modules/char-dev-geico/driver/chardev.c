@@ -9,7 +9,7 @@
 
 #include "chardev_ioctl.h"
 
-#define DEBUG_INFO
+//#define DEBUG_INFO
 
 #define DEV_NAME "chardev"
 #define MAX_DEV 1
@@ -20,7 +20,6 @@ static int dev_major = -1;
 static struct class *chardev_class = NULL;
 static struct cdev cdev;
 static struct device *chardev;
-static bool clear_on_read = false;
 
 struct internal_buffer {
     char *start;
@@ -32,12 +31,12 @@ struct internal_buffer {
 
 struct chardev_process {
     struct internal_buffer *device_buffer;
+    bool clear_on_read;
     //struct task_struct *lead_thread;
 };
 
 static ssize_t chardev_read(struct file *file, char __user *buf,
-			                size_t count, loff_t *ppos)
-{
+			                size_t count, loff_t *ppos) {
     struct internal_buffer *device_buffer;
     struct chardev_process *cdev_proc;
     size_t bytes_read;
@@ -66,7 +65,7 @@ static ssize_t chardev_read(struct file *file, char __user *buf,
         return -EFAULT;
     }
 
-    if (clear_on_read == true) {
+    if (cdev_proc->clear_on_read == true) {
         memset(device_buffer->start + *ppos, 0, bytes_read);
     }
 
@@ -208,13 +207,13 @@ static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 #ifdef DEBUG_INFO
             pr_info("chardev_ioctl: triggered CLEAR_ON_READ\n");
 #endif
-            clear_on_read = true;
+            cdev_proc->clear_on_read = true;
             break;
         case CHARDEV_IOC_NO_CLEAR:
 #ifdef DEBUG_INFO
             pr_info("chardev_ioctl: triggered NO_CLEAR\n");
 #endif
-            clear_on_read = false;
+            cdev_proc->clear_on_read = false;
             break;
         default:
             mutex_unlock(&device_buffer->buffer_lock);
@@ -256,6 +255,7 @@ static int chardev_open(struct inode *inode, struct file *file)
    // cdev_proc->lead_thread = current->group_leader;
    // get_task_struct(cdev_proc->lead_thread);
     cdev_proc->device_buffer = device_buffer;
+    cdev_proc->clear_on_read = false;
 
     file->private_data = cdev_proc;
 

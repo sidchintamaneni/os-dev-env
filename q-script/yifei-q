@@ -96,7 +96,7 @@ say() {
 # This function is called _AFTER_ QEMU starts (on guest).
 guest() {
 	export PATH=/bin:/sbin:/usr/bin:/usr/sbin
-    export PATH="/OS-Dev-Env/tools/retsnoop/src/:${PATH}"
+    export PATH="/os-dev-env/tools/retsnoop/src/:${PATH}"
     export LD_LIBRARY_PATH=/linux/tools/lib/bpf
 
 	say pivot root
@@ -259,7 +259,7 @@ source $KERNEL/tools/bpf/bpftool/bash-completion/bpftool
 eval \$(resize)
 EOF
 
-	cd OS-Dev-Env 
+	cd os-dev-env 
 
 	if [ -n "$ARGS" ]; then
 		say non-interactive bash script
