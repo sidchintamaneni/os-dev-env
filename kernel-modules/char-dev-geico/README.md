@@ -36,7 +36,8 @@ Writes data from user space to the device's internal buffer.
 - Maintains the previous read/write offset position
 - If `count` exceeds the buffer size, the write operation overwrites the buffer
   contents from the start
-- **returns:** Number of bytes written on success, negative value on failure
+
+**returns:** Number of bytes written on success, negative value on failure
 
 ### lseek 
 
@@ -80,7 +81,7 @@ make insmod chardev.ko
 bash rmmod chardev
 ```
 
-## Testing To run the test suite: 
+## To run the test suite: 
 
 ```
 cd tests 
