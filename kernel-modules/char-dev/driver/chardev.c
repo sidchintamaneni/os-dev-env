@@ -7,6 +7,7 @@
 #include <linux/mm.h>
 #include <asm/io.h>
 
+
 #include "chardev.h"
 
 #define MAX_DEV 2
@@ -53,10 +54,10 @@ struct chardev_ioctl_desc {
 static int chardev_create(struct file *file, unsigned int cmd, void *data)
 {
 
-	pr_info("Current %d, chardev_create function"
-			" starts here..\n", current->pid);
 	struct chardev_init_args *chardev_kernel_args = data;
 	struct chardev_process *chardev_proc = file->private_data;
+	pr_info("Current %d, chardev_create function"
+			" starts here..\n", current->pid);
 
 	pr_info("Current %d, chardev_create function"
 			" receiving data from userspace %x..\n", current->pid, 
@@ -106,14 +107,15 @@ err_out:
 static int chardev_mmap(struct file *file, struct vm_area_struct *vma) {
 
 
-	pr_info("Current %d, chardev_mmap function"
-			" starts here..\n", current->pid);
-	
 	struct chardev_process *chardev_proc = file->private_data;
 	unsigned long offset;
 	unsigned long pfn;
 	void *ptr = chardev_proc->chardev_mmap_ptr;
 	int ret;
+
+	pr_info("Current %d, chardev_mmap function"
+			" starts here..\n", current->pid);
+	
 	
 	// Incase there are more memory addresses to mmap
 	offset = vma->vm_pgoff << PAGE_SHIFT;
@@ -155,16 +157,17 @@ static struct chardev_ioctl_desc chardev_ioctls[] = {
 
 static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-	pr_info("Current %d, chardev_ioctl function"
-			" starts here..\n", current->pid);
 
 	int ret = -EINVAL;
 	const struct chardev_ioctl_desc *ioctl = NULL;
 	chardev_ioctl_t *func;
 
 	struct chardev_init_args *chardev_kernel_args;
-
 	unsigned int nr = _IOC_NR(cmd);
+
+	pr_info("Current %d, chardev_ioctl function"
+			" starts here..\n", current->pid);
+
 	pr_info("Current %d, chardev_ioctl function"
 			" nr value %d\n", current->pid, nr);
 
@@ -206,10 +209,10 @@ err_out:
 
 static int chardev_open(struct inode *inode, struct file *file)
 {
+	struct chardev_process *chardev_proc = kzalloc(sizeof(struct chardev_process), GFP_KERNEL);
 	pr_info("Current %d, chardev_open function" 
 			" starts here..\n", current->pid);
 	
-	struct chardev_process *chardev_proc = kzalloc(sizeof(struct chardev_process), GFP_KERNEL);
 	chardev_proc->lead_thread = current->group_leader;
 	get_task_struct(chardev_proc->lead_thread);
 
@@ -222,9 +225,9 @@ static int chardev_open(struct inode *inode, struct file *file)
 
 static int chardev_release(struct inode *inode, struct file *file)
 {
+	struct chardev_process *chardev_proc = file->private_data;
 	pr_info("Current %d, chardev_release function"
 			" starts here..\n", current->pid);
-	struct chardev_process *chardev_proc = file->private_data;
 
 	if (!chardev_proc)
 		return 0;
@@ -260,10 +263,10 @@ static const struct file_operations chardev_fops = {
 
 static int __init chardev_init(void) 
 {
+	int err = 0;
 	pr_info("Current %d, chardev_init function" 
 			" starts here..\n", current->pid);
 
-	int err = 0;
 
 	dev_major = register_chrdev(0, DEV_NAME, &chardev_fops);
 
@@ -272,7 +275,7 @@ static int __init chardev_init(void)
 		goto out;
 	}
 
-	chardev_class = class_create(DEV_NAME);
+	chardev_class = class_create(THIS_MODULE, DEV_NAME);
 	err = PTR_ERR(chardev_class);
 	if (IS_ERR(chardev_class))
 		goto err_chardev_class;
