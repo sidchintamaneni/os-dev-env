@@ -1,31 +1,24 @@
 BASE_PROJ ?= $(shell pwd)
 LINUX ?= ${BASE_PROJ}/linux
 USER_ID ?= "$(shell id -u):$(shell id -g)"
-SSH_PORT ?= "52227"
+SSH_PORT ?= "62222"
+NET_PORT ?= "62223"
+GDB_PORT ?= "62224"
 .ALWAYS:
 
-all: vmlinux fs samples
+all: vmlinux 
 
 docker: .ALWAYS
-	make -C docker/docker-linux-builder docker
+	docker buildx build --network=host --progress=plain -t runtime-osdev .
 
 qemu-run: 
 	docker run --privileged --rm \
-	--device=/dev/kvm:/dev/kvm --device=/dev/net/tun:/dev/net/tun \
+	--device=/dev/kvm:/dev/kvm \
 	-v ${BASE_PROJ}:/os-dev-env -v ${LINUX}:/linux \
 	-w /linux \
 	-p 127.0.0.1:${SSH_PORT}:52222 \
-	-it runtime:latest \
-	/os-dev-env/q-script/yifei-q -s
-
-# mapping the gdb port 1234 from docker container 
-qemu-run-gdb: 
-	docker run --privileged --rm \
-	--device=/dev/kvm:/dev/kvm --device=/dev/net/tun:/dev/net/tun \
-	-v ${BASE_PROJ}:/os-dev-env -v ${LINUX}:/linux \
-	-w /linux \
-	-p 127.0.0.1:${SSH_PORT}:52222 \
-	-p 127.0.0.1:1234:1234 \
+	-p 127.0.0.1:${NET_PORT}:52223 \
+	-p 127.0.0.1:${GDB_PORT}:52224 \
 	-it runtime:latest \
 	/os-dev-env/q-script/yifei-q -s
 
@@ -38,6 +31,9 @@ bpftool:
 
 libbpf: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux/tools/lib/bpf runtime make -j`nproc` 
+
+libbpf-clean: 
+	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux/tools/lib/bpf runtime make -j`nproc` clean
 
 bpftool-clean:
 	docker run --rm -v ${LINUX}:/linux -w /linux/tools/bpf/bpftool runtime make -j`nproc` clean 
