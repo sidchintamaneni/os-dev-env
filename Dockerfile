@@ -33,7 +33,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y qemu-kvm libvirt-clients l
 
 # Essentials
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping kmod curl
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping kmod curl autoconf
 
 # Rust
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y

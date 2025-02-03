@@ -7,3 +7,6 @@
 [submodule "tools/retsnoop"]
 	path = tools/retsnoop
 	url = git@github.com:anakryiko/retsnoop.git
+[submodule "dev-tools/ctags"]
+	path = dev-tools/ctags
+	url = git@github.com:universal-ctags/ctags.git
