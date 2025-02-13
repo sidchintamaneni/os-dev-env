@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 
 int main(void){
-    printf("triggering socket syscall\n");
+    printf("triggering socket syscall, PID: %d\n", getpid());
     int sockfd = socket(AF_UNSPEC, SOCK_DGRAM, 0);
     return 0;
 }
