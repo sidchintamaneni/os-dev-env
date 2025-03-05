@@ -10,3 +10,6 @@
 [submodule "dev-tools/ctags"]
 	path = dev-tools/ctags
 	url = git@github.com:universal-ctags/ctags.git
+[submodule "llvm-project"]
+	path = llvm-project
+	url = git@github.com:llvm/llvm-project.git
