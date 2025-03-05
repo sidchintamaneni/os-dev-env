@@ -13,3 +13,6 @@
 [submodule "linux-stable"]
 	path = linux-stable
 	url = git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+[submodule "llvm-project"]
+	path = llvm-project
+	url = git@github.com:llvm/llvm-project.git

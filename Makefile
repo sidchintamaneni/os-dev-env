@@ -1,9 +1,9 @@
 BASE_PROJ ?= $(shell pwd)
 LINUX ?= ${BASE_PROJ}/linux
 USER_ID ?= "$(shell id -u):$(shell id -g)"
-SSH_PORT ?= "62222"
-NET_PORT ?= "62223"
-GDB_PORT ?= "62224"
+SSH_PORT ?= "62227"
+NET_PORT ?= "62228"
+GDB_PORT ?= "62229"
 .ALWAYS:
 
 all: vmlinux 

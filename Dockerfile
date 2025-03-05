@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 as linux-builder
+FROM ubuntu:24.04 AS linux-builder
 
 ENV LINUX=/linux 
 
@@ -33,7 +33,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y qemu-kvm libvirt-clients l
 
 # Essentials
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping kmod curl autoconf
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping kmod curl autoconf gdb
 
 # Rust
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
