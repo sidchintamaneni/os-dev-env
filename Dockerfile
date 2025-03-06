@@ -18,7 +18,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --fix-missing -y git build-es
  flex bison \
  rsync \
  libcap-dev libdisasm-dev binutils-dev unzip \
- pkg-config lsb-release wget software-properties-common gnupg zlib1g 
+ pkg-config lsb-release wget software-properties-common gnupg zlib1g python3-docutils
 
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
