@@ -7,6 +7,8 @@
 #include <linux/mm.h>
 #include <asm/io.h>
 
+#include "sqspinlock.h"
+
 #define DEV_NAME "chardev"
 #define MAX_DEV 1
 
@@ -15,23 +17,24 @@ static struct class *chardev_class = NULL;
 static struct cdev cdev;
 static struct device *chardev;
 
-static ssize_t chardev_read(struct file *file, char __user *buf,
-			                size_t count, loff_t *ppos) {
-    pr_info("chardev_read: Read syscall initiated\n");
-	return 0;
-}
+sqspinlock_t sqspinlock = __ARCH_SPIN_LOCK_UNLOCKED; 
+int crit_sec_cnt = 0;
 
 
 static int chardev_open(struct inode *inode, struct file *file)
 {
-    pr_info("chardev_open: File opened\n");
+    //pr_info("chardev_open: File opened\n");
+	squeued_spin_lock(&sqspinlock);
+	crit_sec_cnt++;
+	pr_info("chardev_open: Critical section count - %d", crit_sec_cnt);
+	squeued_spin_unlock(&sqspinlock);
 
     return 0; 
 }
 
 static int chardev_release(struct inode *inode, struct file *file)
 {
-    pr_info("chardev_open: File closed\n");
+    //pr_info("chardev_open: File closed\n");
 
     return 0;
 }
@@ -40,7 +43,6 @@ static const struct file_operations chardev_fops = {
     .owner = THIS_MODULE,
     .open = chardev_open,
     .release = chardev_release,
-    .read = chardev_read,
 };
 
 static int __init chardev_init(void)
@@ -72,7 +74,7 @@ static int __init chardev_init(void)
     chardev = device_create(chardev_class, NULL, MKDEV(dev_major, 0), NULL, DEV_NAME);
     err = PTR_ERR(chardev);
     if (IS_ERR(chardev))
-        goto err_chardev;
+		goto err_chardev;
 
     return 0;
 
@@ -98,8 +100,9 @@ static void __exit chardev_exit(void)
 	chardev = NULL;
 }
 
+module_init(chardev_init);
+module_exit(chardev_exit);
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Siddharth Chintamaneni");
 
-module_init(chardev_init);
-module_exit(chardev_exit);
