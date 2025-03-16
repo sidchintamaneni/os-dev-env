@@ -1,0 +1,103 @@
+
+# Setup
+- Five threads executes open and close syscalls in the userspace program
+- Open syscall call squeued_spin_{lock, unlock} functions
+	- In the critical sections
+		- it updates crit_sec_cnt++
+		- run two for loops of size 1e9
+		- finally the thread which enter the critical section first will set the loop count to zero
+
+# Debug dump
+
+[ 8842.849773][ T4166] squeued_spin_lock[4166]: started executing
+[ 8842.849825][ T4167] squeued_spin_lock[4167]: started executing
+[ 8842.849941][ T4168] squeued_spin_lock[4168]: started executing
+[ 8842.849945][ T4168] squeued_spin_lock[4168]: lock value - 1
+[ 8842.849946][ T4168] chardev_open[4168]: Critical section count - 1
+[ 8842.850140][ T4170] squeued_spin_lock[4170]: started executing
+[ 8842.850140][ T4169] squeued_spin_lock[4169]: started executing
+[ 8842.850143][ T4170] squeued_spin_lock[4170]: entered slowpath
+[ 8842.850143][ T4169] squeued_spin_lock[4169]: entered slowpath
+[ 8842.850145][ T4170] queued_spin_lock_slowpath[4170]: started executing
+[ 8842.850145][ T4169] queued_spin_lock_slowpath[4169]: started executing
+[ 8842.850147][ T4169] queued_spin_lock_slowpath[4169]: before (trylock || pending) val - 0x1
+[ 8842.850146][ T4170] queued_spin_lock_slowpath[4170]: before (trylock || pending) val - 0x1
+[ 8842.850148][ T4169] squeued_fetch_set_pending_acquire[4169]: val(1) - 0x0
+[ 8842.850149][ T4170] squeued_fetch_set_pending_acquire[4170]: val(1) - 0x100
+[ 8842.850149][ T4169] squeued_fetch_set_pending_acquire[4169]: val(2) - 0x1
+[ 8842.850150][ T4170] squeued_fetch_set_pending_acquire[4170]: val(2) - 0x101
+[ 8842.850151][ T4169] queued_spin_lock_slowpath[4169]: after (trylock || pending) val - 0x1
+[ 8842.850152][ T4170] queued_spin_lock_slowpath[4170]: after (trylock || pending) val - 0x101
+[ 8842.850153][ T4169] queued_spin_lock_slowpath[4169]: COND(val & _Q_LOCKED_MASK)
+[ 8842.850153][ T4170] queued_spin_lock_slowpath[4170]: (2) COND(val & ~_Q_LOCKED_MASK)
+[ 8842.850155][ T4170] queued_spin_lock_slowpath[4170]: entered the queue
+[ 8842.851720][ T4166] squeued_spin_lock[4166]: entered slowpath
+[ 8842.851723][ T4166] queued_spin_lock_slowpath[4166]: started executing
+[ 8842.851724][ T4166] queued_spin_lock_slowpath[4166]: COND(val & ~_Q_LOCKED_MASK)
+[ 8842.851725][ T4166] queued_spin_lock_slowpath[4166]: entered the queue
+[ 8842.889570][ T4167] squeued_spin_lock[4167]: entered slowpath
+[ 8842.890885][ T4167] queued_spin_lock_slowpath[4167]: started executing
+[ 8842.892222][ T4167] queued_spin_lock_slowpath[4167]: COND(val & ~_Q_LOCKED_MASK)
+[ 8842.893837][ T4167] queued_spin_lock_slowpath[4167]: entered the queue
+[ 8844.235068][ T4169] chardev_open[4169]: Critical section count - 2
+[ 8844.235077][ T4170] chardev_open[4170]: Critical section count - 3
+[ 8844.236344][ T4166] chardev_open[4166]: Critical section count - 4
+[ 8844.237614][ T4167] chardev_open[4167]: Critical section count - 5              
+
+# Results analysis
+- Userspace program created the threads {4166,4167,4168}
+- thread 4168 acquired the lock and started executing the big forloops
+	- delaying the remaining threads to acquire the lock
+- Userspace spawned the remaining 2 threads {4169, 4170}
+	- Both these two threads entered slow path because 4168 already acquire the lock
+
+```
+if (val == _Q_PENDING_VAL) {
+		int cnt = _Q_PENDING_LOOPS;
+		val = atomic_cond_read_relaxed(&lock->val,
+					       (VAL != _Q_PENDING_VAL) || !cnt--);
+	}
+
+```
+- threads {4169, 4170} skipped the code section, because val is not set to pending state
+
+```
+if (val & ~_Q_LOCKED_MASK)
+		goto queue;
+```
+- threads {4169, 4170} skipped the code section, because val is still in locked state (no pending/ contention)
+
+- Now to the function `queued_fetch_set_pending_acquire`
+	``` cursed piece of code
+	val = GEN_BINARY_RMWcc(LOCK_PREFIX "btsl", lock->val.counter, c,
+			       "I", _Q_PENDING_OFFSET) * _Q_PENDING_VAL;
+	```
+	- 4169 after the code section, val value is 0
+		- here it checks for the pending offset as it is set 0, it changes that to 1 and return 0(CPU carry flag)
+	- 4170 executes the same piece of code
+		- as now the pending offset is already set, it returns 0x100 (CPU carry flag)
+	```
+	val |= atomic_read(&lock->val) & ~_Q_PENDING_MASK;
+	```
+	- checking for the lock
+		so for 4169 its 0x1 and for 4170 its 0x101
+
+- 4169 is in pending state and 4170 is in queuing state 
+```
+if (unlikely(val & ~_Q_LOCKED_MASK)) {
+
+		/* Undo PENDING if we set it. */
+		if (!(val & _Q_PENDING_MASK))
+			clear_pending(lock);
+
+		goto queue;
+	}
+```
+- 4169 skips this and 4170 clears its pending state and enters the queue
+
+```
+if (val & _Q_LOCKED_MASK)
+		smp_cond_load_acquire(&lock->locked, !VAL);
+```
+- 4169 waits for 4168 to give up the lock
+- clears the pending bit, set the lock bit and returns

@@ -161,6 +161,7 @@ void __lockfunc squeued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 
 	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
 
+	pr_info("queued_spin_lock_slowpath[%d]: started executing\n", current->pid);
 
 	/*
 	 * Wait for in-progress pending->locked hand-overs with a bounded
@@ -169,6 +170,7 @@ void __lockfunc squeued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	 * 0,1,0 -> 0,0,1
 	 */
 	if (val == _Q_PENDING_VAL) {
+		pr_info("queued_spin_lock_slowpath[%d]: COND(val == _Q_PENDING_VAL)\n", current->pid);
 		int cnt = _Q_PENDING_LOOPS;
 		val = atomic_cond_read_relaxed(&lock->val,
 					       (VAL != _Q_PENDING_VAL) || !cnt--);
@@ -177,15 +179,19 @@ void __lockfunc squeued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	/*
 	 * If we observe any contention; queue.
 	 */
-	if (val & ~_Q_LOCKED_MASK)
+	if (val & ~_Q_LOCKED_MASK) {
+		pr_info("queued_spin_lock_slowpath[%d]: COND(val & ~_Q_LOCKED_MASK)\n", current->pid);
 		goto queue;
+	}
 
 	/*
 	 * trylock || pending
 	 *
 	 * 0,0,* -> 0,1,* -> 0,0,1 pending, trylock
 	 */
+	pr_info("queued_spin_lock_slowpath[%d]: before (trylock || pending) val - 0x%x\n", current->pid, val);
 	val = squeued_fetch_set_pending_acquire(lock);
+	pr_info("queued_spin_lock_slowpath[%d]: after (trylock || pending) val - 0x%x\n", current->pid, val);
 
 	/*
 	 * If we observe contention, there is a concurrent locker.
@@ -195,6 +201,7 @@ void __lockfunc squeued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	 * on @next to become !NULL.
 	 */
 	if (unlikely(val & ~_Q_LOCKED_MASK)) {
+		pr_info("queued_spin_lock_slowpath[%d]: (2) COND(val & ~_Q_LOCKED_MASK)\n", current->pid);
 
 		/* Undo PENDING if we set it. */
 		if (!(val & _Q_PENDING_MASK))
@@ -214,8 +221,10 @@ void __lockfunc squeued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	 * clear_pending_set_locked() implementations imply full
 	 * barriers.
 	 */
-	if (val & _Q_LOCKED_MASK)
+	if (val & _Q_LOCKED_MASK) {
+		pr_info("queued_spin_lock_slowpath[%d]: COND(val & _Q_LOCKED_MASK)\n", current->pid);
 		smp_cond_load_acquire(&lock->locked, !VAL);
+	}
 
 	/*
 	 * take ownership and clear the pending bit.
@@ -229,6 +238,7 @@ void __lockfunc squeued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 queue:
 //	lockevent_inc(lock_pending);
 
+	pr_info("queued_spin_lock_slowpath[%d]: entered the queue\n", current->pid);
 	node = this_cpu_ptr(&sqnodes[0].mcs);
 	idx = node->count++;
 	tail = encode_tail(smp_processor_id(), idx);

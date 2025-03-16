@@ -20,13 +20,24 @@ static struct device *chardev;
 sqspinlock_t sqspinlock = __ARCH_SPIN_LOCK_UNLOCKED; 
 int crit_sec_cnt = 0;
 
+int loop_val = 1000000000;
 
 static int chardev_open(struct inode *inode, struct file *file)
 {
     //pr_info("chardev_open: File opened\n");
 	squeued_spin_lock(&sqspinlock);
 	crit_sec_cnt++;
-	pr_info("chardev_open: Critical section count - %d", crit_sec_cnt);
+	pr_info("chardev_open[%d]: Critical section count - %d", current->pid, crit_sec_cnt);
+	for (int i = 0; i < loop_val; i++) {
+		if (i%100 == 0)
+			crit_sec_cnt %= 100;
+	}
+
+	for (int i = 0; i < loop_val; i++) {
+		if (i%100 == 0)
+			crit_sec_cnt %= 100;
+	}
+	loop_val = 0;
 	squeued_spin_unlock(&sqspinlock);
 
     return 0; 
@@ -34,7 +45,7 @@ static int chardev_open(struct inode *inode, struct file *file)
 
 static int chardev_release(struct inode *inode, struct file *file)
 {
-    //pr_info("chardev_open: File closed\n");
+    //pr_info("chardev_open[%d]: File closed\n", current->pid);
 
     return 0;
 }

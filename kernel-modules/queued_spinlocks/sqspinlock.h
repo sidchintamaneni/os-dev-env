@@ -27,7 +27,9 @@ static __always_inline u32 squeued_fetch_set_pending_acquire(struct qspinlock *l
 	 */
 	val = GEN_BINARY_RMWcc(LOCK_PREFIX "btsl", lock->val.counter, c,
 			       "I", _Q_PENDING_OFFSET) * _Q_PENDING_VAL;
+	pr_info("squeued_fetch_set_pending_acquire[%d]: val(1) - 0x%x\n", current->pid, val);
 	val |= atomic_read(&lock->val) & ~_Q_PENDING_MASK;
+	pr_info("squeued_fetch_set_pending_acquire[%d]: val(2) - 0x%x\n", current->pid, val);
 
 	return val;
 }
@@ -46,14 +48,14 @@ static __always_inline int squeued_spin_trylock(struct qspinlock *lock)
 static __always_inline void squeued_spin_lock(struct qspinlock *lock)
 {
 	int val = 0;
-	pr_info("squeued_spin_lock: Called\n");
+	pr_info("squeued_spin_lock[%d]: started executing\n", current->pid);
 	
 	if (likely(atomic_try_cmpxchg_acquire(&lock->val, &val, _Q_LOCKED_VAL))) {
-		pr_info("squeued_spin_lock: lock value - %d\n", lock->val.counter);
+		pr_info("squeued_spin_lock[%d]: lock value - %d\n", current->pid, lock->val.counter);
 		return;
 	}
 
-	pr_info("squeued_spin_lock: entered slowpath\n");
+	pr_info("squeued_spin_lock[%d]: entered slowpath\n", current->pid);
 	squeued_spin_lock_slowpath(lock, val);
 }
 

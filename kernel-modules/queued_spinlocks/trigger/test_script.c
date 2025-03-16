@@ -29,7 +29,7 @@ int main()
 {
 	pthread_t tid;
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 5; i++)
         pthread_create(&tid, NULL, pthread_func, NULL);
 
     pthread_exit(NULL);
