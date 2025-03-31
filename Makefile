@@ -1,5 +1,6 @@
 BASE_PROJ ?= $(shell pwd)
 LINUX ?= ${BASE_PROJ}/linux
+BPF_LINUX ?= ${BASE_PROJ}/bpf
 USER_ID ?= "$(shell id -u):$(shell id -g)"
 SSH_PORT ?= "62227"
 NET_PORT ?= "62228"
@@ -15,6 +16,17 @@ qemu-run:
 	docker run --privileged --rm \
 	--device=/dev/kvm:/dev/kvm \
 	-v ${BASE_PROJ}:/os-dev-env -v ${LINUX}:/linux \
+	-w /linux \
+	-p 127.0.0.1:${SSH_PORT}:52222 \
+	-p 127.0.0.1:${NET_PORT}:52223 \
+	-p 127.0.0.1:${GDB_PORT}:1234 \
+	-it sid-runtime-osdev:latest \
+	/os-dev-env/q-script/yifei-q -s
+
+qemu-run-blinux: 
+	docker run --privileged --rm \
+	--device=/dev/kvm:/dev/kvm \
+	-v ${BASE_PROJ}:/os-dev-env -v ${BPF_LINUX}:/linux \
 	-w /linux \
 	-p 127.0.0.1:${SSH_PORT}:52222 \
 	-p 127.0.0.1:${NET_PORT}:52223 \
@@ -38,8 +50,23 @@ libbpf-clean:
 bpftool-clean:
 	docker run --rm -v ${LINUX}:/linux -w /linux/tools/bpf/bpftool sid-runtime-osdev make -j`nproc` clean 
 
+bpftool-blinux: 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux/tools/bpf/bpftool sid-runtime-osdev make -j`nproc` bpftool
+
+libbpf-blinux: 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux/tools/lib/bpf sid-runtime-osdev make -j`nproc` 
+
+libbpf-clean-blinux: 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux/tools/lib/bpf sid-runtime-osdev make -j`nproc` clean
+
+bpftool-clean-blinux:
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux/tools/bpf/bpftool sid-runtime-osdev make -j`nproc` clean 
+
 vmlinux: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` bzImage 
+
+vmlinux-blinux: 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` bzImage 
 
 headers-install: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` headers_install 
@@ -47,11 +74,20 @@ headers-install:
 modules-install: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` modules
 
+headers-install-blinux: 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` headers_install 
+
+modules-install-blinux: 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` modules
+
 kernel:
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` 
 
 linux-clean:
 	docker run --rm -v ${LINUX}:/linux -w /linux sid-runtime-osdev make distclean
+
+linux-clean-blinux:
+	docker run --rm -v ${BPF_LINUX}:/linux -w /linux sid-runtime-osdev make distclean
 
 # Targets for C BPF
 bpf-samples:

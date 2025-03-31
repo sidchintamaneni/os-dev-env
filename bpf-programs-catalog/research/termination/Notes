@@ -1,0 +1,108 @@
+* The loop bug by changing the callback inside another callback
+	* check verifier_bug.kern.c
+* Calling non-inline subprog multiple times is a bug?
+	* is generating an opcode `8d (LEA)` which is not supported by BPF
+	* why is llvm generating an instruction which is not supported by BPF?
+	```
+	#include <linux/bpf.h>
+	#include <linux/types.h>
+	#include <bpf/bpf_helpers.h>
+	
+	#define LOOPS_CNT 2
+	
+	int (*fn)(void *);
+	
+	
+	static int __attribute__ ((noinline)) callback_fn(void *ctx) {
+	
+		bpf_printk("callback_fn\n");
+		
+		return 0;
+	}
+	
+	SEC("tp/syscalls/sys_enter_socket")
+	int trigger_syscall_prog(void *ctx) {
+	
+		fn = &callback_fn;
+		fn(NULL);
+		fn(NULL);
+		fn(NULL);
+	
+	    return 0;
+	
+	}
+	
+	char LISENSE[] SEC("license") = "Dual BSD/GPL";
+
+	llvm-objdump:
+
+	Disassembly of section .text:
+
+0000000000000000 <callback_fn>:
+       0:	18 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00	r1 = 0x0 ll
+       2:	b7 02 00 00 0d 00 00 00	r2 = 0xd
+       3:	85 00 00 00 06 00 00 00	call 0x6
+       4:	b7 00 00 00 00 00 00 00	r0 = 0x0
+       5:	95 00 00 00 00 00 00 00	exit
+
+Disassembly of section tp/syscalls/sys_enter_socket:
+
+0000000000000000 <trigger_syscall_prog>:
+       0:	18 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00	r6 = 0x0 ll
+       2:	18 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00	r1 = 0x0 ll
+       4:	7b 16 00 00 00 00 00 00	*(u64 *)(r6 + 0x0) = r1
+       5:	85 10 00 00 ff ff ff ff	call -0x1
+       6:	79 62 00 00 00 00 00 00	r2 = *(u64 *)(r6 + 0x0)
+       7:	b7 01 00 00 00 00 00 00	r1 = 0x0
+       8:	8d 02 00 00 00 00 00 00	callx r2
+       9:	79 62 00 00 00 00 00 00	r2 = *(u64 *)(r6 + 0x0)
+      10:	b7 01 00 00 00 00 00 00	r1 = 0x0
+      11:	8d 02 00 00 00 00 00 00	callx r2
+      12:	b7 00 00 00 00 00 00 00	r0 = 0x0
+      13:	95 00 00 00 00 00 00 00	exit
+
+	```
+
+* When you pass a fn pointer inside a loop it works fine
+	* but if you call a subprog before bpf_loop the verifier complains that
+	  the function pointer as scalar
+	  ```
+		#include <linux/bpf.h>
+		#include <linux/types.h>
+		#include <bpf/bpf_helpers.h>
+		
+		#define LOOPS_CNT 2
+		
+		int iter = 0;
+		
+		int (*fn)(void *);
+		
+		
+		static int __attribute__ ((noinline)) callback_fn2(void *ctx) {
+		
+			bpf_printk("callback_fn2\n");
+		
+			return 0;
+		}
+		
+		static int __attribute__ ((noinline)) callback_fn(void *ctx) {
+		
+			bpf_printk("callback_fn\n");
+			
+			return 0;
+		}
+		
+		SEC("tp/syscalls/sys_enter_socket")
+		int trigger_syscall_prog(void *ctx) {
+		
+			fn = &callback_fn;
+			callback_fn2(NULL);
+			bpf_loop(2, fn, 0, 0);
+
+		    return 0;
+		
+		}
+		
+		char LISENSE[] SEC("license") = "Dual BSD/GPL";
+	   ```
+
