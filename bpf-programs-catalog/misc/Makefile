@@ -1,4 +1,4 @@
-LINUX := ../../linux
+LINUX := ../../bpf
 SOURCES := $(wildcard *.kern.c)
 FILES := $(SOURCES:.c=.o)
 USER_SRC := $(wildcard *.user.c)

@@ -2,17 +2,20 @@
 #include <linux/types.h>
 #include <bpf/bpf_helpers.h>
 
-//int a = 10;
-//int b = 20;
+#define LOOPS_CNT 3
+
+static int callback_fn(void *ctx) {
+
+	bpf_printk("Printing inside the loop\n");
+
+	return 0;
+}
 
 SEC("tp/syscalls/sys_enter_socket")
 int bpf_prog_trigger_syscall_prog(void *ctx) {
 
-//	int x = a;
-//	int y = b;
-//	int z = x + y;
-//
-//	bpf_printk("%d\n", z);
+	bpf_loop(LOOPS_CNT, callback_fn, NULL, 0);
+
     return 0;
 
 }

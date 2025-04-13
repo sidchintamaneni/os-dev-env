@@ -6,9 +6,7 @@
 int main(void){
     printf("triggering socket syscall\n");
 	
-//	while(1) {
-		int sockfd = socket(AF_UNSPEC, SOCK_DGRAM, 0);
-//	}
+	int sockfd = socket(AF_UNSPEC, SOCK_DGRAM, 0);
     
 	return 0;
 }

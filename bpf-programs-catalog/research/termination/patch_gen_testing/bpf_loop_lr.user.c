@@ -5,7 +5,7 @@
 
 int main() {
     
-    struct bpf_object *obj = bpf_object__open("null.kern.o"); 
+    struct bpf_object *obj = bpf_object__open("bpf_loop_lr.kern.o"); 
 
     if (bpf_object__load(obj)) {
         printf("Failed to load the program\n");
