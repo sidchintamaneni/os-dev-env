@@ -4,7 +4,7 @@ BPF_LINUX ?= ${BASE_PROJ}/bpf
 USER_ID ?= "$(shell id -u):$(shell id -g)"
 SSH_PORT ?= "62227"
 NET_PORT ?= "62228"
-GDB_PORT ?= "62229"
+GDB_PORT ?= "1234"
 .ALWAYS:
 
 all: vmlinux 

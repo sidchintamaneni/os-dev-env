@@ -16,3 +16,6 @@
 [submodule "llvm-project"]
 	path = llvm-project
 	url = git@github.com:llvm/llvm-project.git
+[submodule "tools/schbench"]
+	path = tools/schbench
+	url = https://git.kernel.org/pub/scm/linux/kernel/git/mason/schbench.git/

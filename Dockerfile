@@ -20,12 +20,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --fix-missing -y git build-es
  libcap-dev libdisasm-dev binutils-dev unzip \
  pkg-config lsb-release wget software-properties-common gnupg zlib1g python3-docutils
 
-RUN wget https://apt.llvm.org/llvm.sh
-RUN chmod +x llvm.sh
-RUN ./llvm.sh 19
-RUN ln -s /usr/bin/clang-19 /usr/bin/clang
-RUN ln -s /usr/bin/clang++-19 /usr/bin/clang++
-RUN ln -s /usr/bin/ld.lld-19 /usr/bin/ld.lld
+# clang and llvm
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y clang llvm lld
 
 # Qemu
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
@@ -40,5 +37,3 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo install cross
 
-# ln
-RUN ln -s /usr/bin/llvm-strip-19 /usr/bin/llvm-strip
