@@ -16,16 +16,17 @@ int bpf_prog_trigger_syscall_prog(void *ctx) {
 	const int val = 1;
 	int err;
 
-	err = bpf_map_update_elem(&hash_map, &key, &val, BPF_ANY);
-	if (err)
-		return 0;
-
+//	err = bpf_map_update_elem(&hash_map, &key, &val, BPF_ANY);
+//	if (err)
+//		return 0;
+//
 	int *value = bpf_map_lookup_elem(&hash_map, &key);
 	if (value) {
 		__sync_fetch_and_add(value, 1);
-	} else {
-		err = bpf_map_update_elem(&hash_map, &key, &val, BPF_ANY);
 	}
+//	else {
+//		err = bpf_map_update_elem(&hash_map, &key, &val, BPF_ANY);
+//	}
 
     return 0;
 
