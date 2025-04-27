@@ -4,7 +4,7 @@
 
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
-	__uint(max_entries, 10);
+	__uint(max_entries, 1);
 	__type(key, int);
 	__type(value, int);
 } hash_map SEC(".maps");
@@ -23,7 +23,9 @@ int bpf_prog_trigger_syscall_prog(void *ctx) {
 	int *value = bpf_map_lookup_elem(&hash_map, &key);
 	if (value) {
 		__sync_fetch_and_add(value, 1);
+		bpf_printk("map_access: value %d\n", *value);
 	}
+
 //	else {
 //		err = bpf_map_update_elem(&hash_map, &key, &val, BPF_ANY);
 //	}

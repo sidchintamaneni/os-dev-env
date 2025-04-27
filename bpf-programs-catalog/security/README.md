@@ -6,7 +6,7 @@
 	- Generating a light skeleton
 		bpftool gen skeleton -L trivial.bpf.o name trivial > loader.h
 	- Extracting instructions and data from light skel
-		../../linux/scripts/hornet/extract-skel.sh loader.h trivial.bin
+		/linux/scripts/hornet/extract-skel.sh loader.h trivial.bin
 	- Compile the userspace/ loader program
 		clang -g -O2 -Wall -I/linux/tools/lib/ -I$/linux/usr/include -L/linux/tools/lib/bpf/ loader.c -lbpf -o loader
 	- Compile the `sign-ebpf.c` in `scripts/hornet`
