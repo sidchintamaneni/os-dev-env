@@ -16,3 +16,6 @@
 [submodule "tools/schbench"]
 	path = tools/schbench
 	url = https://git.kernel.org/pub/scm/linux/kernel/git/mason/schbench.git/
+[submodule "tools/scx"]
+	path = tools/scx
+	url = git@github.com:sidchintamaneni/scx.git

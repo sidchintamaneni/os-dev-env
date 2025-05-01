@@ -12,3 +12,4 @@
 `insmod kmod_st_ops.ko`
 
 - struct ops kernel modules are not supported by BPF yet
+    - Added to TODO list for feature requirements
