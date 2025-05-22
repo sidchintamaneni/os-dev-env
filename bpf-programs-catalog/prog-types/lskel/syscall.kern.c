@@ -15,7 +15,6 @@
 	BTF_INT_ENC(encoding, bits_offset, bits)
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 struct args {
 	__u64 log_buf;
 	__u32 log_size;
@@ -78,7 +77,7 @@ int bpf_prog_trigger_syscall_prog(struct args *ctx)
 	/* return */
 	bpf_printk("bpf_prog_trigger_syscall_prog: update invalid return value\n");
 	static struct bpf_insn insns[] = {
-		BPF_ST_MEM(BPF_DW, BPF_REG_10, -8/* -(1024 * 16) */, 0),
+		BPF_ST_MEM(BPF_DW, BPF_REG_10, -8/*-(1024 * 16) */, 0),
 		BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
 		BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
 		BPF_LD_MAP_FD(BPF_REG_1, 0),

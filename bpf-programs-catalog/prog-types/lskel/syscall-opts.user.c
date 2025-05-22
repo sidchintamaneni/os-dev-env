@@ -17,11 +17,13 @@ int main(int argc, char **argv)
 						.kernel_log_size = sizeof(log_buf),
 						.kernel_log_level = 1);
 
+	printf("main: syscall_kern__open_opts: \n");
 	skel = syscall_kern__open_opts(&opts);
 	if (!skel)
 		return -1;
 
 	err = syscall_kern__load(skel);
+	printf("main: err :%d \n", err);
 	if (err < 0) {
 		printf("Verifier log error\n");
 		printf("%s", log_buf);

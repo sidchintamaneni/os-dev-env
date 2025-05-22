@@ -23,6 +23,17 @@ qemu-run:
 	-it sid-runtime-osdev:latest \
 	/os-dev-env/q-script/yifei-q -s
 
+qemu-run-uefi: 
+	docker run --privileged --rm \
+	--device=/dev/kvm:/dev/kvm \
+	-v ${BASE_PROJ}:/os-dev-env -v ${LINUX}:/linux \
+	-w /linux \
+	-p 127.0.0.1:${SSH_PORT}:52222 \
+	-p 127.0.0.1:${NET_PORT}:52223 \
+	-p 127.0.0.1:${GDB_PORT}:1234 \
+	-it sid-runtime-osdev:latest \
+	/os-dev-env/q-script/yifei-q_uefi -s
+
 qemu-run-blinux: 
 	docker run --privileged --rm \
 	--device=/dev/kvm:/dev/kvm \
