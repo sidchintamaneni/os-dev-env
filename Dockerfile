@@ -44,3 +44,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y protobuf-compiler
 # compression
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y zstd
+
+#OVMF
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y uuid-dev nasm acpica-tools
