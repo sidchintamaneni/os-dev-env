@@ -95,7 +95,7 @@ say() {
 
 # This function is called _AFTER_ QEMU starts (on guest).
 guest() {
-	export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+	export PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin
     export PATH="/os-dev-env/tools/retsnoop/src/:${PATH}"
     export LD_LIBRARY_PATH=/linux/tools/lib/bpf
 

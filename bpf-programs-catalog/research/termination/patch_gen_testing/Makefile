@@ -8,7 +8,7 @@ BPF_CLANG_CFLAGS := -target bpf -g -Wall -O2 -c
 INCLUDE := -I$(LINUX)/usr/include/ -I$(LINUX)/tools/lib/ -I$(LINUX)/include/ 
 USER-CFLAGS := -I$(LINUX)/usr/include -I$(LINUX)/tools/lib/ -L$(LINUX)/tools/lib/bpf/
 
-all: $(FILES) $(USER)
+all: vmlinux-header $(FILES) $(USER)
 	
 $(FILES) : %.o : %.c
 	$(BPF-CLANG) $(INCLUDE) $(BPF_CLANG_CFLAGS) -o $@ $<
@@ -16,6 +16,8 @@ $(FILES) : %.o : %.c
 $(USER) : % : %.c
 	clang $(USER-CFLAGS) $< -lbpf -o $@
 
+vmlinux-header:
+	bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
 
 .PHONY : clean
 

@@ -49,6 +49,14 @@ qemu-run-blinux:
 qemu-ssh:
 	ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -t root@127.0.0.1 -p ${SSH_PORT}
 
+clean-all:
+	make linux-clean
+	make linux-clean-blinux
+	make bpftool-clean
+	make bpftool-clean-blinux
+	make libbpf-clean
+	make libbpf-clean-blinux
+
 bpftool: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux/tools/bpf/bpftool sid-runtime-osdev make -j`nproc` bpftool
 
@@ -77,7 +85,7 @@ vmlinux:
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` bzImage 
 
 vmlinux-blinux: 
-	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` bzImage 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` bzImage
 
 headers-install: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` headers_install 

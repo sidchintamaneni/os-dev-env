@@ -18,7 +18,6 @@ int bpf_prog_trigger_syscall_prog(void *ctx) {
 
 	err = bpf_map_update_elem(&hash_map, &key, &val, BPF_ANY);
 
-
     return 0;
 
 }

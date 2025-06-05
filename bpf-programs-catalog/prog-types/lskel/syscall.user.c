@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
 	err = bpf_map_lookup_elem(ctx.map_fd, &key, &value);
 	
-	printf("Printing log buf\n %s", (char *)ctx.log_buf);
+	printf("Printing log buf\n%s", (char *)ctx.log_buf);
 cleanup:
 	syscall_kern__destroy(skel);
 	if (ctx.prog_fd > 0)

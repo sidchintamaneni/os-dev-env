@@ -45,6 +45,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y protobuf-compiler
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y zstd
 
-#OVMF
+# OVMF
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y uuid-dev nasm acpica-tools
+
+# Debug
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y vim
+
+# Pahole versin update for bpf selftests build
+RUN git clone --depth=1 --branch=v1.29 https://git.kernel.org/pub/scm/devel/pahole/pahole.git && \
+cd pahole && mkdir build && cd build && cmake .. && make -j$(nproc) && make install && cp ./pahole /usr/local/bin/pahole && pahole --version
+
