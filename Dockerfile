@@ -39,7 +39,11 @@ RUN cargo install cross
 
 # SCX tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y protobuf-compiler
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y protobuf-compiler jq ninja-build libseccomp-dev libalpm-dev
+# Python
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip python3-venv
+RUN pip3 install meson --break-system-packages
 
 # compression
 RUN DEBIAN_FRONTEND=noninteractive apt-get update

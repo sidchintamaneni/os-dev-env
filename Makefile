@@ -117,5 +117,5 @@ bpf-samples-clean:
 
 # Target to enter docker container
 enter-docker:
-	docker run --rm -u ${USER_ID} -v ${BASE_PROJ}:/os-dev-env -w /os-dev-env -it sid-runtime-osdev /bin/bash
+	docker run --privileged --rm -v ${BASE_PROJ}:/os-dev-env -w /os-dev-env -it sid-runtime-osdev /bin/bash
 

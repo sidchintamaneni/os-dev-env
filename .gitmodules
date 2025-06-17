@@ -16,9 +16,6 @@
 [submodule "tools/schbench"]
 	path = tools/schbench
 	url = https://git.kernel.org/pub/scm/linux/kernel/git/mason/schbench.git/
-[submodule "tools/scx"]
-	path = tools/scx
-	url = git@github.com:sidchintamaneni/scx.git
 [submodule "uefi/edk2"]
 	path = uefi/edk2
 	url = git@github.com:tianocore/edk2.git
