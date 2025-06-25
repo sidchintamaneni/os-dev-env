@@ -81,6 +81,13 @@ libbpf-clean-blinux:
 bpftool-clean-blinux:
 	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux/tools/bpf/bpftool sid-runtime-osdev make -j`nproc` clean 
 
+perf-clean:
+	docker run --rm -v ${LINUX}:/linux -w /linux/tools/perf sid-runtime-osdev make -j`nproc` clean 
+
+perf: 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux/tools/perf sid-runtime-osdev make -j`nproc` 
+	docker run --rm -u ${USER_ID} -v ${BPF_LINUX}:/linux -w /linux/tools/perf sid-runtime-osdev make -j`nproc` install
+
 vmlinux: 
 	docker run --rm -u ${USER_ID} -v ${LINUX}:/linux -w /linux sid-runtime-osdev  make -j`nproc` bzImage 
 
