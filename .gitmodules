@@ -19,3 +19,6 @@
 [submodule "uefi/edk2"]
 	path = uefi/edk2
 	url = git@github.com:tianocore/edk2.git
+[submodule "scx"]
+	path = tools/scx
+	url = git@github.com:sched-ext/scx.git

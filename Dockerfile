@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 AS linux-builder
+FROM ubuntu:25.10 AS linux-builder
 
 ENV LINUX=/linux 
 
@@ -37,13 +37,17 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo install cross
 
-# SCX tools
+# SCX tools and perf
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y protobuf-compiler jq ninja-build libseccomp-dev libalpm-dev
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y protobuf-compiler \
+		jq ninja-build libseccomp-dev \
+		libalpm-dev  libpfm4-dev libdebuginfod-dev  systemtap-sdt-dev libslang2-dev\
+		libperl-dev libnuma-dev libcapstone-dev libbabeltrace-dev libtraceevent-dev \
+		libtracefs-dev
 # Python
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip python3-venv
-RUN pip3 install meson --break-system-packages
+RUN pip3 install meson setuptools --break-system-packages
 
 # compression
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
@@ -57,7 +61,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y uuid-dev nasm acpica-tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y vim
 
-# Pahole versin update for bpf selftests build
-RUN git clone --depth=1 --branch=v1.29 https://git.kernel.org/pub/scm/devel/pahole/pahole.git && \
-cd pahole && mkdir build && cd build && cmake .. && make -j$(nproc) && make install && cp ./pahole /usr/local/bin/pahole && pahole --version
+# Benchmarking
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y rt-tests
 
