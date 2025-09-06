@@ -8,16 +8,27 @@ void *fn;
 
 #define LOOPS_CNT 1 << 10
 
-static int callback_fn4(void *ctx) {
-	
-	bpf_printk("Loop is looping!");
+unsigned long loop_cnt = 0;
 
+static int callback_fn5(void *ctx) {
+	
+	bpf_printk("Lopping..");
+	return 0;
+}
+
+static int callback_fn4(void *ctx) {
+	bpf_printk("Lopping..");
 	return 0;
 }
 
 static int callback_fn3(void *ctx) {
 
-	bpf_loop(LOOPS_CNT, callback_fn4, NULL, 0);
+	if (iter == 0)
+		fn = &callback_fn4;
+	else
+		fn = &callback_fn5;
+
+	bpf_loop(LOOPS_CNT, fn, NULL, 0);
 
 	return 0;
 }
@@ -25,14 +36,24 @@ static int callback_fn3(void *ctx) {
 
 static int callback_fn2(void *ctx) {
 
-	bpf_loop(LOOPS_CNT, callback_fn3, NULL, 0);
+	if (iter == 0)
+		fn = &callback_fn3;
+	else
+		fn = &callback_fn4;
+
+	bpf_loop(LOOPS_CNT, fn, NULL, 0);
 
 	return 0;
 }
 
 static int callback_fn(void *ctx) {
 
-	bpf_loop(LOOPS_CNT, callback_fn2, NULL, 0);
+	if (iter == 0)
+		fn = &callback_fn2;
+	else
+		fn = &callback_fn3;
+
+	bpf_loop(LOOPS_CNT, fn, NULL, 0);
 
 	return 0;
 }

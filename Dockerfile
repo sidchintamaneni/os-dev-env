@@ -63,5 +63,5 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y vim
 
 # Benchmarking
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y rt-tests
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y rt-tests redis-server iperf3
 

@@ -1,29 +1,37 @@
 #include <linux/bpf.h>
 #include <linux/types.h>
+#include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
 
-static __noinline
-void func2() {
-	unsigned int numa_id = bpf_get_numa_node_id();
-	bpf_printk("func2: numa id %d\n", numa_id);
+extern void bpf_throw(long cookie) __ksym;
+extern void *bpf_obj_new_impl(__u64 local_type_id, void *meta) __ksym;
+extern void bpf_obj_drop_impl(void *kptr, void *meta) __ksym;
+
+#define bpf_obj_new(type) ((type *)bpf_obj_new_impl(bpf_core_type_id_local(type), NULL))
+#define bpf_obj_drop(kptr) bpf_obj_drop_impl(kptr, NULL)
+
+
+__noinline int throwing_global_subprog(struct __sk_buff *ctx)
+{
+	bpf_printk("throwing_global_subprog: subprog starts here...\n");
+	if (ctx->len)
+		bpf_throw(0);
+	return 0;
 }
 
-static __noinline
-void func1() {
-	unsigned int numa_id = bpf_get_numa_node_id();
-	bpf_printk("func1: numa id %d\n", numa_id);
-}
+ 
+SEC("tc")
+int bpf_prog_trigger_syscall_prog(struct __sk_buff *ctx)
+{
+	bpf_printk("bpf_prog_trigger_syscall_prog: tc starts here...\n");
+	struct { long a; } *p = bpf_obj_new(typeof(*p));
 
-SEC("tp/syscalls/sys_enter_socket")
-int bpf_prog_trigger_syscall_prog(void *ctx) {
-
-	unsigned int numa_id = bpf_get_numa_node_id();
-	bpf_printk("bpf_prog_trigger_syscall_prog: numa id %d\n", numa_id);
-
-	func1();
-	func2();
-
-    return 0;
+	if (!p)
+		return 0;
+	if (ctx->protocol)
+		throwing_global_subprog(ctx);
+	bpf_obj_drop(p);
+	return 0;
 }
 
 char LISENSE[] SEC("license") = "Dual BSD/GPL";

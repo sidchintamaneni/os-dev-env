@@ -5,7 +5,7 @@
 
 int main() {
     
-    struct bpf_object *obj = bpf_object__open("null.kern.o"); 
+    struct bpf_object *obj = bpf_object__open("rq_lock.kern.o"); 
 
     if (bpf_object__load(obj)) {
         printf("Failed to load the program\n");
@@ -19,12 +19,27 @@ int main() {
         goto cleanup;
     }
 
+    struct bpf_program *prog2 = bpf_object__find_program_by_name(obj, 
+                                "bpf_prog_trigger_syscall_prog2");
+    if (!prog2) {
+        printf("Failed to find the prog2\n");
+        goto cleanup;
+    }
     struct bpf_link *link1 = bpf_program__attach(prog1);
 
     if (libbpf_get_error(link1)) {
         printf("Failed to attach the program1\n");
         bpf_link__destroy(link1);
         link1 = NULL;
+        goto cleanup;
+    }
+    
+    struct bpf_link *link2 = bpf_program__attach(prog2);
+
+    if (libbpf_get_error(link2)) {
+        printf("Failed to attach the program1\n");
+        bpf_link__destroy(link2);
+        link2 = NULL;
         goto cleanup;
     }
     
@@ -35,7 +50,6 @@ int main() {
     }
     
 cleanup:
-	bpf_link__destroy(link);
     bpf_object__close(obj);
     return 0;
 }

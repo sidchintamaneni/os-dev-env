@@ -7124,20 +7124,20 @@ enum {
 
 enum {
 	Opt_error___2 = -1,
-	Opt_context = 0,
-	Opt_defcontext = 1,
-	Opt_fscontext = 2,
-	Opt_rootcontext = 3,
-	Opt_seclabel = 4,
-};
-
-enum {
-	Opt_error___3 = -1,
 	Opt_fsdefault = 0,
 	Opt_fsfloor = 1,
 	Opt_fshat = 2,
 	Opt_fsroot = 3,
 	Opt_fstransmute = 4,
+};
+
+enum {
+	Opt_error___3 = -1,
+	Opt_context = 0,
+	Opt_defcontext = 1,
+	Opt_fscontext = 2,
+	Opt_rootcontext = 3,
+	Opt_seclabel = 4,
 };
 
 enum {
@@ -7156,6 +7156,12 @@ enum {
 	Opt_uid___2 = 0,
 	Opt_gid___2 = 1,
 	Opt_mode = 2,
+};
+
+enum {
+	Opt_uid___3 = 0,
+	Opt_gid___3 = 1,
+	Opt_mode___2 = 2,
 	Opt_ptmxmode = 3,
 	Opt_newinstance = 4,
 	Opt_max = 5,
@@ -7163,16 +7169,10 @@ enum {
 };
 
 enum {
-	Opt_uid___3 = 0,
-	Opt_gid___3 = 1,
-	Opt_mode___2 = 2,
-	Opt_source = 3,
-};
-
-enum {
 	Opt_uid___4 = 0,
 	Opt_gid___4 = 1,
 	Opt_mode___3 = 2,
+	Opt_source = 3,
 };
 
 enum {
@@ -7504,6 +7504,8 @@ enum {
 
 enum {
 	PROC_ENTRY_PERMANENT = 1,
+	PROC_ENTRY_proc_read_iter = 2,
+	PROC_ENTRY_proc_compat_ioctl = 4,
 };
 
 enum {
@@ -9144,70 +9146,71 @@ enum {
 	TP_ERR_NON_UNIQ_SYMBOL = 10,
 	TP_ERR_BAD_RETPROBE = 11,
 	TP_ERR_NO_TRACEPOINT = 12,
-	TP_ERR_BAD_ADDR_SUFFIX = 13,
-	TP_ERR_NO_GROUP_NAME = 14,
-	TP_ERR_GROUP_TOO_LONG = 15,
-	TP_ERR_BAD_GROUP_NAME = 16,
-	TP_ERR_NO_EVENT_NAME = 17,
-	TP_ERR_EVENT_TOO_LONG = 18,
-	TP_ERR_BAD_EVENT_NAME = 19,
-	TP_ERR_EVENT_EXIST = 20,
-	TP_ERR_RETVAL_ON_PROBE = 21,
-	TP_ERR_NO_RETVAL = 22,
-	TP_ERR_BAD_STACK_NUM = 23,
-	TP_ERR_BAD_ARG_NUM = 24,
-	TP_ERR_BAD_VAR = 25,
-	TP_ERR_BAD_REG_NAME = 26,
-	TP_ERR_BAD_MEM_ADDR = 27,
-	TP_ERR_BAD_IMM = 28,
-	TP_ERR_IMMSTR_NO_CLOSE = 29,
-	TP_ERR_FILE_ON_KPROBE = 30,
-	TP_ERR_BAD_FILE_OFFS = 31,
-	TP_ERR_SYM_ON_UPROBE = 32,
-	TP_ERR_TOO_MANY_OPS = 33,
-	TP_ERR_DEREF_NEED_BRACE = 34,
-	TP_ERR_BAD_DEREF_OFFS = 35,
-	TP_ERR_DEREF_OPEN_BRACE = 36,
-	TP_ERR_COMM_CANT_DEREF = 37,
-	TP_ERR_BAD_FETCH_ARG = 38,
-	TP_ERR_ARRAY_NO_CLOSE = 39,
-	TP_ERR_BAD_ARRAY_SUFFIX = 40,
-	TP_ERR_BAD_ARRAY_NUM = 41,
-	TP_ERR_ARRAY_TOO_BIG = 42,
-	TP_ERR_BAD_TYPE = 43,
-	TP_ERR_BAD_STRING = 44,
-	TP_ERR_BAD_SYMSTRING = 45,
-	TP_ERR_BAD_BITFIELD = 46,
-	TP_ERR_ARG_NAME_TOO_LONG = 47,
-	TP_ERR_NO_ARG_NAME = 48,
-	TP_ERR_BAD_ARG_NAME = 49,
-	TP_ERR_USED_ARG_NAME = 50,
-	TP_ERR_ARG_TOO_LONG = 51,
-	TP_ERR_NO_ARG_BODY = 52,
-	TP_ERR_BAD_INSN_BNDRY = 53,
-	TP_ERR_FAIL_REG_PROBE = 54,
-	TP_ERR_DIFF_PROBE_TYPE = 55,
-	TP_ERR_DIFF_ARG_TYPE = 56,
-	TP_ERR_SAME_PROBE = 57,
-	TP_ERR_NO_EVENT_INFO = 58,
-	TP_ERR_BAD_ATTACH_EVENT = 59,
-	TP_ERR_BAD_ATTACH_ARG = 60,
-	TP_ERR_NO_EP_FILTER = 61,
-	TP_ERR_NOSUP_BTFARG = 62,
-	TP_ERR_NO_BTFARG = 63,
-	TP_ERR_NO_BTF_ENTRY = 64,
-	TP_ERR_BAD_VAR_ARGS = 65,
-	TP_ERR_NOFENTRY_ARGS = 66,
-	TP_ERR_DOUBLE_ARGS = 67,
-	TP_ERR_ARGS_2LONG = 68,
-	TP_ERR_ARGIDX_2BIG = 69,
-	TP_ERR_NO_PTR_STRCT = 70,
-	TP_ERR_NOSUP_DAT_ARG = 71,
-	TP_ERR_BAD_HYPHEN = 72,
-	TP_ERR_NO_BTF_FIELD = 73,
-	TP_ERR_BAD_BTF_TID = 74,
-	TP_ERR_BAD_TYPE4STR = 75,
-	TP_ERR_NEED_STRING_TYPE = 76,
+	TP_ERR_BAD_TP_NAME = 13,
+	TP_ERR_BAD_ADDR_SUFFIX = 14,
+	TP_ERR_NO_GROUP_NAME = 15,
+	TP_ERR_GROUP_TOO_LONG = 16,
+	TP_ERR_BAD_GROUP_NAME = 17,
+	TP_ERR_NO_EVENT_NAME = 18,
+	TP_ERR_EVENT_TOO_LONG = 19,
+	TP_ERR_BAD_EVENT_NAME = 20,
+	TP_ERR_EVENT_EXIST = 21,
+	TP_ERR_RETVAL_ON_PROBE = 22,
+	TP_ERR_NO_RETVAL = 23,
+	TP_ERR_BAD_STACK_NUM = 24,
+	TP_ERR_BAD_ARG_NUM = 25,
+	TP_ERR_BAD_VAR = 26,
+	TP_ERR_BAD_REG_NAME = 27,
+	TP_ERR_BAD_MEM_ADDR = 28,
+	TP_ERR_BAD_IMM = 29,
+	TP_ERR_IMMSTR_NO_CLOSE = 30,
+	TP_ERR_FILE_ON_KPROBE = 31,
+	TP_ERR_BAD_FILE_OFFS = 32,
+	TP_ERR_SYM_ON_UPROBE = 33,
+	TP_ERR_TOO_MANY_OPS = 34,
+	TP_ERR_DEREF_NEED_BRACE = 35,
+	TP_ERR_BAD_DEREF_OFFS = 36,
+	TP_ERR_DEREF_OPEN_BRACE = 37,
+	TP_ERR_COMM_CANT_DEREF = 38,
+	TP_ERR_BAD_FETCH_ARG = 39,
+	TP_ERR_ARRAY_NO_CLOSE = 40,
+	TP_ERR_BAD_ARRAY_SUFFIX = 41,
+	TP_ERR_BAD_ARRAY_NUM = 42,
+	TP_ERR_ARRAY_TOO_BIG = 43,
+	TP_ERR_BAD_TYPE = 44,
+	TP_ERR_BAD_STRING = 45,
+	TP_ERR_BAD_SYMSTRING = 46,
+	TP_ERR_BAD_BITFIELD = 47,
+	TP_ERR_ARG_NAME_TOO_LONG = 48,
+	TP_ERR_NO_ARG_NAME = 49,
+	TP_ERR_BAD_ARG_NAME = 50,
+	TP_ERR_USED_ARG_NAME = 51,
+	TP_ERR_ARG_TOO_LONG = 52,
+	TP_ERR_NO_ARG_BODY = 53,
+	TP_ERR_BAD_INSN_BNDRY = 54,
+	TP_ERR_FAIL_REG_PROBE = 55,
+	TP_ERR_DIFF_PROBE_TYPE = 56,
+	TP_ERR_DIFF_ARG_TYPE = 57,
+	TP_ERR_SAME_PROBE = 58,
+	TP_ERR_NO_EVENT_INFO = 59,
+	TP_ERR_BAD_ATTACH_EVENT = 60,
+	TP_ERR_BAD_ATTACH_ARG = 61,
+	TP_ERR_NO_EP_FILTER = 62,
+	TP_ERR_NOSUP_BTFARG = 63,
+	TP_ERR_NO_BTFARG = 64,
+	TP_ERR_NO_BTF_ENTRY = 65,
+	TP_ERR_BAD_VAR_ARGS = 66,
+	TP_ERR_NOFENTRY_ARGS = 67,
+	TP_ERR_DOUBLE_ARGS = 68,
+	TP_ERR_ARGS_2LONG = 69,
+	TP_ERR_ARGIDX_2BIG = 70,
+	TP_ERR_NO_PTR_STRCT = 71,
+	TP_ERR_NOSUP_DAT_ARG = 72,
+	TP_ERR_BAD_HYPHEN = 73,
+	TP_ERR_NO_BTF_FIELD = 74,
+	TP_ERR_BAD_BTF_TID = 75,
+	TP_ERR_BAD_TYPE4STR = 76,
+	TP_ERR_NEED_STRING_TYPE = 77,
 };
 
 enum {
@@ -15783,19 +15786,19 @@ enum enable_type {
 };
 
 enum energy_perf_value_index {
-	EPP_INDEX_DEFAULT = 0,
-	EPP_INDEX_PERFORMANCE = 1,
-	EPP_INDEX_BALANCE_PERFORMANCE = 2,
-	EPP_INDEX_BALANCE_POWERSAVE = 3,
-	EPP_INDEX_POWERSAVE = 4,
-};
-
-enum energy_perf_value_index___2 {
 	EPB_INDEX_PERFORMANCE = 0,
 	EPB_INDEX_BALANCE_PERFORMANCE = 1,
 	EPB_INDEX_NORMAL = 2,
 	EPB_INDEX_BALANCE_POWERSAVE = 3,
 	EPB_INDEX_POWERSAVE = 4,
+};
+
+enum energy_perf_value_index___2 {
+	EPP_INDEX_DEFAULT = 0,
+	EPP_INDEX_PERFORMANCE = 1,
+	EPP_INDEX_BALANCE_PERFORMANCE = 2,
+	EPP_INDEX_BALANCE_POWERSAVE = 3,
+	EPP_INDEX_POWERSAVE = 4,
 };
 
 enum environment_cap {
@@ -20951,12 +20954,6 @@ enum mousedev_emul {
 	MOUSEDEV_EMUL_PS2 = 0,
 	MOUSEDEV_EMUL_IMPS = 1,
 	MOUSEDEV_EMUL_EXPS = 2,
-};
-
-enum mp_bustype {
-	MP_BUS_ISA = 1,
-	MP_BUS_EISA = 2,
-	MP_BUS_PCI = 3,
 };
 
 enum mp_irq_source_types {
@@ -35336,7 +35333,7 @@ struct software_node;
 struct software_node_ref_args {
 	const struct software_node *node;
 	unsigned int nargs;
-	u64 args[8];
+	u64 args[16];
 };
 
 struct acpi_device_software_node_port {
@@ -42666,7 +42663,7 @@ struct bio_slab {
 	struct kmem_cache *slab;
 	unsigned int slab_ref;
 	unsigned int slab_size;
-	char name[8];
+	char name[12];
 };
 
 struct biovec_slab {
@@ -52911,6 +52908,7 @@ struct task_cputime {
 struct cgroup_base_stat {
 	struct task_cputime cputime;
 	u64 forceidle_sum;
+	u64 ntime;
 };
 
 struct prev_cputime {
@@ -52987,6 +52985,12 @@ struct cgroup {
 	struct cgroup_freezer_state freezer;
 	struct bpf_local_storage *bpf_cgrp_storage;
 	struct cgroup *ancestors[0];
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	long: 64;
 };
 
@@ -53413,11 +53417,11 @@ struct chksum_ctx {
 };
 
 struct chksum_desc_ctx {
-	__u16 crc;
+	u32 crc;
 };
 
 struct chksum_desc_ctx___2 {
-	u32 crc;
+	__u16 crc;
 };
 
 struct cipher_context {
@@ -64297,6 +64301,8 @@ struct drm_dmi_panel_orientation_data {
 
 struct drm_mode_create_dumb;
 
+struct drm_fb_helper_surface_size;
+
 struct drm_ioctl_desc;
 
 struct drm_driver {
@@ -64316,6 +64322,7 @@ struct drm_driver {
 	struct drm_gem_object * (*gem_prime_import_sg_table)(struct drm_device *, struct dma_buf_attachment *, struct sg_table *);
 	int (*dumb_create)(struct drm_file *, struct drm_device *, struct drm_mode_create_dumb *);
 	int (*dumb_map_offset)(struct drm_file *, struct drm_device *, uint32_t, uint64_t *);
+	int (*fbdev_probe)(struct drm_fb_helper *, struct drm_fb_helper_surface_size *);
 	void (*show_fdinfo)(struct drm_printer *, struct drm_file *);
 	int major;
 	int minor;
@@ -64595,8 +64602,6 @@ struct drm_fb_helper {
 	int preferred_bpp;
 	struct fb_deferred_io fbdefio;
 };
-
-struct drm_fb_helper_surface_size;
 
 struct drm_fb_helper_funcs {
 	int (*fb_probe)(struct drm_fb_helper *, struct drm_fb_helper_surface_size *);
@@ -67816,43 +67821,6 @@ struct ei_entry {
 	void *priv;
 };
 
-struct eisa_device_id {
-	char sig[8];
-	kernel_ulong_t driver_data;
-};
-
-struct eisa_device {
-	struct eisa_device_id id;
-	int slot;
-	int state;
-	long unsigned int base_addr;
-	struct resource res[4];
-	u64 dma_mask;
-	struct device dev;
-	char pretty_name[50];
-};
-
-struct eisa_device_info {
-	struct eisa_device_id id;
-	char name[50];
-};
-
-struct eisa_driver {
-	const struct eisa_device_id *id_table;
-	struct device_driver driver;
-};
-
-struct eisa_root_device {
-	struct device *dev;
-	struct resource *res;
-	long unsigned int bus_base_addr;
-	int slots;
-	int force_probe;
-	u64 dma_mask;
-	int bus_nr;
-	struct resource eisa_root_res;
-};
-
 struct elevator_queue;
 
 struct io_cq;
@@ -68042,6 +68010,19 @@ struct memelfnote {
 	void *data;
 };
 
+struct elf_thread_core_info;
+
+struct elf_note_info {
+	struct elf_thread_core_info *thread;
+	struct memelfnote psinfo;
+	struct memelfnote signote;
+	struct memelfnote auxv;
+	struct memelfnote files;
+	compat_siginfo_t csigdata;
+	size_t size;
+	int thread_notes;
+};
+
 struct siginfo {
 	union {
 		struct {
@@ -68056,19 +68037,6 @@ struct siginfo {
 
 typedef struct siginfo siginfo_t;
 
-struct elf_thread_core_info;
-
-struct elf_note_info {
-	struct elf_thread_core_info *thread;
-	struct memelfnote psinfo;
-	struct memelfnote signote;
-	struct memelfnote auxv;
-	struct memelfnote files;
-	siginfo_t csigdata;
-	size_t size;
-	int thread_notes;
-};
-
 struct elf_thread_core_info___2;
 
 struct elf_note_info___2 {
@@ -68077,7 +68045,7 @@ struct elf_note_info___2 {
 	struct memelfnote signote;
 	struct memelfnote auxv;
 	struct memelfnote files;
-	compat_siginfo_t csigdata;
+	siginfo_t csigdata;
 	size_t size;
 	int thread_notes;
 };
@@ -68128,14 +68096,14 @@ struct elf_prstatus {
 struct elf_thread_core_info {
 	struct elf_thread_core_info *next;
 	struct task_struct *task;
-	struct elf_prstatus prstatus;
+	struct compat_elf_prstatus prstatus;
 	struct memelfnote notes[0];
 };
 
 struct elf_thread_core_info___2 {
 	struct elf_thread_core_info___2 *next;
 	struct task_struct *task;
-	struct compat_elf_prstatus prstatus;
+	struct elf_prstatus prstatus;
 	struct memelfnote notes[0];
 };
 
@@ -76881,7 +76849,7 @@ struct fwnode_operations {
 struct fwnode_reference_args {
 	struct fwnode_handle *fwnode;
 	unsigned int nargs;
-	u64 args[8];
+	u64 args[16];
 };
 
 struct idt_bits {
@@ -78197,22 +78165,22 @@ struct getcpu_cache {
 	long unsigned int blob[16];
 };
 
-struct linux_dirent;
-
 struct getdents_callback {
-	struct dir_context ctx;
-	struct linux_dirent *current_dir;
-	int prev_reclen;
-	int count;
-	int error;
-};
-
-struct getdents_callback___2 {
 	struct dir_context ctx;
 	char *name;
 	u64 ino;
 	int found;
 	int sequence;
+};
+
+struct linux_dirent;
+
+struct getdents_callback___2 {
+	struct dir_context ctx;
+	struct linux_dirent *current_dir;
+	int prev_reclen;
+	int count;
+	int error;
 };
 
 struct linux_dirent64;
@@ -79512,6 +79480,12 @@ struct hist_field {
 	unsigned int var_str_idx;
 	u64 constant;
 	u64 div_multiplier;
+};
+
+struct hist_file_data {
+	struct file *file;
+	u64 last_read;
+	u64 last_act;
 };
 
 struct var_defs {
@@ -80933,12 +80907,6 @@ struct hv_output_add_logical_processor {
 
 struct hv_output_map_device_interrupt {
 	struct hv_interrupt_entry interrupt_entry;
-};
-
-struct hv_page_buffer {
-	u32 len;
-	u32 offset;
-	u64 pfn;
 };
 
 struct hv_partition_assist_pg {
@@ -82421,6 +82389,7 @@ struct ib_device {
 		struct ib_core_device coredev;
 	};
 	const struct attribute_group *groups[4];
+	u8 hw_stats_attr_index;
 	u64 uverbs_cmd_mask;
 	char node_desc[64];
 	__be64 node_guid;
@@ -87508,7 +87477,7 @@ struct io_worker {
 	int init_retries;
 	union {
 		struct callback_head rcu;
-		struct work_struct work;
+		struct delayed_work work;
 	};
 };
 
@@ -93100,6 +93069,7 @@ struct kvm_vcpu_arch {
 	u32 pkru;
 	u32 hflags;
 	u64 efer;
+	u64 host_debugctl;
 	u64 apic_base;
 	struct kvm_lapic *apic;
 	bool load_eoi_exitmap_pending;
@@ -103744,14 +103714,14 @@ struct netlbl_domhsh_tbl {
 };
 
 struct netlbl_domhsh_walk_arg {
-	struct netlbl_audit *audit_info;
-	u32 doi;
-};
-
-struct netlbl_domhsh_walk_arg___2 {
 	struct netlink_callback *nl_cb;
 	struct sk_buff *skb;
 	u32 seq;
+};
+
+struct netlbl_domhsh_walk_arg___2 {
+	struct netlbl_audit *audit_info;
+	u32 doi;
 };
 
 struct netlbl_lsm_cache {
@@ -105367,6 +105337,7 @@ struct nfs_server {
 	struct list_head delegations;
 	struct list_head ss_copies;
 	struct list_head ss_src_copies;
+	long unsigned int delegation_flags;
 	long unsigned int delegation_gen;
 	long unsigned int mig_gen;
 	long unsigned int mig_status;
@@ -109084,7 +109055,10 @@ struct pv_cpu_ops {
 	void (*io_delay)(void);
 };
 
-struct pv_irq_ops {};
+struct pv_irq_ops {
+	void (*safe_halt)(void);
+	void (*halt)(void);
+};
 
 struct pv_mmu_ops {
 	void (*flush_tlb_user)(void);
@@ -124667,18 +124641,6 @@ struct slice {
 	__be32 blkoff;
 };
 
-struct slot___2 {
-	u8 number;
-	unsigned int devfn;
-	struct pci_bus *bus;
-	struct pci_dev *dev;
-	unsigned int latch_status: 1;
-	unsigned int adapter_status: 1;
-	unsigned int extracting;
-	struct hotplug_slot hotplug_slot;
-	struct list_head slot_list;
-};
-
 struct slot___3 {
 	u8 bus;
 	u8 device;
@@ -124704,6 +124666,18 @@ struct slot {
 	struct hotplug_slot hotplug_slot;
 	struct acpiphp_slot *acpi_slot;
 	unsigned int sun;
+};
+
+struct slot___2 {
+	u8 number;
+	unsigned int devfn;
+	struct pci_bus *bus;
+	struct pci_dev *dev;
+	unsigned int latch_status: 1;
+	unsigned int adapter_status: 1;
+	unsigned int extracting;
+	struct hotplug_slot hotplug_slot;
+	struct list_head slot_list;
 };
 
 struct slub_flush_work {
@@ -125872,8 +125846,11 @@ struct squashfs_sb_info {
 };
 
 struct squashfs_stream {
-	void *stream;
+	void *comp_opts;
+	struct list_head strm_list;
 	struct mutex mutex;
+	int avail_decomp;
+	wait_queue_head_t wait;
 };
 
 struct squashfs_stream___2 {
@@ -125882,11 +125859,8 @@ struct squashfs_stream___2 {
 };
 
 struct squashfs_stream___3 {
-	void *comp_opts;
-	struct list_head strm_list;
+	void *stream;
 	struct mutex mutex;
-	int avail_decomp;
-	wait_queue_head_t wait;
 };
 
 struct squashfs_super_block {
@@ -146362,17 +146336,6 @@ struct vmbus_channel_open_channel {
 	u32 target_vp;
 	u32 downstream_ringbuffer_pageoffset;
 	unsigned char userdata[120];
-};
-
-struct vmbus_channel_packet_page_buffer {
-	u16 type;
-	u16 dataoffset8;
-	u16 length8;
-	u16 flags;
-	u64 transactionid;
-	u32 reserved;
-	u32 rangecount;
-	struct hv_page_buffer range[32];
 };
 
 struct vmbus_channel_relid_released {

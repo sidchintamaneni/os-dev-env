@@ -5,7 +5,7 @@
 
 int main() {
     
-    struct bpf_object *obj = bpf_object__open("null.kern.o"); 
+    struct bpf_object *obj = bpf_object__open("bpf_loop_noinline_smpl.kern.o"); 
 
     if (bpf_object__load(obj)) {
         printf("Failed to load the program\n");
@@ -35,7 +35,6 @@ int main() {
     }
     
 cleanup:
-	bpf_link__destroy(link);
     bpf_object__close(obj);
     return 0;
 }

@@ -48,7 +48,7 @@ host() {
 	if [ "$SSH" = "y" ]; then
     # check container env assume docker
     if [ -f /.dockerenv ]; then
-		  net+=" -netdev user,id=virtual,hostfwd=tcp::52222-:22,hostfwd=tcp::52223-:52223"
+		  net+=" -netdev user,id=virtual,hostfwd=tcp::52222-:22,hostfwd=tcp::52223-:52223,hostfwd=tcp::52224-:52224,hostfwd=udp::52224-:52224"
     else
 		  net+=" -netdev user,id=virtual,hostfwd=tcp:127.0.0.1:52222-:22"
     fi
