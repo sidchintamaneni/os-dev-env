@@ -2,11 +2,13 @@
 #include <linux/types.h>
 #include <bpf/bpf_helpers.h>
 
-#define LOOPS_CNT 1 << 10
+#define LOOPS_CNT 1 << 23
 
 static int callback_fn4(void *ctx) {
 	
-	bpf_printk("Loop is looping!");
+	unsigned int pid = bpf_get_current_pid_tgid() >> 32;
+
+	bpf_printk("callback_fn4: pid %d", pid);
 
 	return 0;
 }
