@@ -35,7 +35,7 @@ static int callback_fn(void *ctx) {
 	return 0;
 }
 
-SEC("fentry/__sys_socket")
+SEC("tracepoint/syscalls/sys_enter_socket")
 int bpf_prog_trigger_syscall_prog(void *ctx) {
 
 	bpf_loop(LOOPS_CNT, callback_fn, NULL, 0);

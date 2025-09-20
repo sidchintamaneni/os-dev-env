@@ -5,7 +5,7 @@
 
 int main() {
     
-    struct bpf_object *obj = bpf_object__open("queue_stack_deadlock.kern.o"); 
+    struct bpf_object *obj = bpf_object__open("res_spin_lock.kern.o"); 
 
     if (bpf_object__load(obj)) {
         printf("Failed to load the program\n");
@@ -19,12 +19,6 @@ int main() {
         goto cleanup;
     }
 
-    struct bpf_program *prog2 = bpf_object__find_program_by_name(obj, 
-                                "raw_spin_unlock_prog");
-    if (!prog2) {
-        printf("Failed to find the prog1\n");
-        goto cleanup;
-    }
     struct bpf_link *link1 = bpf_program__attach(prog1);
 
     if (libbpf_get_error(link1)) {
@@ -33,6 +27,15 @@ int main() {
         link1 = NULL;
         goto cleanup;
     }
+    
+
+    struct bpf_program *prog2 = bpf_object__find_program_by_name(obj, 
+                                "trigger_syscall_prog2");
+    if (!prog2) {
+        printf("Failed to find the prog2\n");
+        goto cleanup;
+    }
+
     struct bpf_link *link2 = bpf_program__attach(prog2);
 
     if (libbpf_get_error(link2)) {
@@ -41,7 +44,6 @@ int main() {
         link2 = NULL;
         goto cleanup;
     }
-    
     printf("Attachment of both programs is done\n");
 
     while(1) {

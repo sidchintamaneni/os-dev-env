@@ -35,7 +35,7 @@ int main() {
     }
     
 cleanup:
-	bpf_link__destroy(link);
+	bpf_link__destroy(link1);
     bpf_object__close(obj);
     return 0;
 }

@@ -10,7 +10,7 @@ struct {
     __uint(value_size, sizeof(int));
 } map SEC(".maps");
 
-SEC("fentry/_raw_spin_unlock_irqrestore")
+SEC("fentry/__sys_socket")
 int raw_spin_unlock_prog(void *ctx)
 {
     bpf_printk("raw_spin_unlock_prog: starts here\n");
