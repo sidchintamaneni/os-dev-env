@@ -28,6 +28,12 @@ int main(int argc, char **argv)
 		printf("%s", log_buf);
 	}
 
+	err = null_kern__attach(skel);
+	if (err < 0) {
+		printf("Attachment failed!\n");
+	}
+
+	while(1);
 	null_kern__destroy(skel);
 
 	return 0;

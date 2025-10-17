@@ -4,17 +4,15 @@
 
 static int x(){
 	bpf_printk("Yay!");
-	x();
+	//x();
 	return 0;
 }
 
-SEC("tp/syscalls/sys_enter_socket")
+SEC("fentry/__sys_socket")
 int bpf_prog_trigger_syscall_prog(void *ctx) {
-
-	bpf_printk("Recursion");
+	bpf_printk("Entry..\n");
 	x();
     return 0;
-
 }
 
 char LISENSE[] SEC("license") = "Dual BSD/GPL";
