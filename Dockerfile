@@ -2,8 +2,7 @@ FROM ubuntu:25.10 AS linux-builder
 
 ENV LINUX=/linux 
 
-# adding clang
-RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing --allow-releaseinfo-change
 RUN DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
@@ -64,4 +63,3 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y vim
 # Benchmarking
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y rt-tests redis-server iperf3
-
