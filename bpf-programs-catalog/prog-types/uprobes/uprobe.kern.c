@@ -3,11 +3,12 @@
 #include <bpf/bpf_helpers.h>
 
 
-SEC("tp/syscalls/sys_enter_socket")
-int bpf_prog_trigger_syscall_prog(void *ctx) {
-
+SEC("uprobe//proc/self/exe:uprobe_multi_func_1")
+int uprobe(struct pt_regs *ctx) 
+{
+	bpf_printk("uprobe: is it working?\n");
+	
     return 0;
-
 }
 
 char LISENSE[] SEC("license") = "Dual BSD/GPL";

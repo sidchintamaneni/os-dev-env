@@ -22,3 +22,6 @@
 [submodule "scx"]
 	path = tools/scx
 	url = git@github.com:sched-ext/scx.git
+[submodule "lib-dev/libbpf-rs"]
+	path = lib-dev/libbpf-rs
+	url = git@github.com:sidchintamaneni/libbpf-rs.git
