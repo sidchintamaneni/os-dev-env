@@ -1,6 +1,8 @@
-#include <linux/bpf.h>
-#include <linux/types.h>
+#include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+
+extern void bpf_die_kfunc(void);
 
 #define LOOPS_CNT 1 << 23
 
@@ -9,6 +11,8 @@ static int callback_fn4(void *ctx) {
 	unsigned int pid = bpf_get_current_pid_tgid() >> 32;
 
 	bpf_printk("callback_fn4: pid %d", pid);
+
+	bpf_die_kfunc();
 
 	return 0;
 }
