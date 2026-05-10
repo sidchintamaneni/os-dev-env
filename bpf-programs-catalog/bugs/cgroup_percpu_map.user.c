@@ -5,7 +5,7 @@
 
 int main() {
     
-    struct bpf_object *obj = bpf_object__open("null.kern.o"); 
+    struct bpf_object *obj = bpf_object__open("cgroup_percpu_map.kern.o"); 
 
     if (bpf_object__load(obj)) {
         printf("Failed to load the program\n");
@@ -13,7 +13,7 @@ int main() {
     }
 
     struct bpf_program *prog1 = bpf_object__find_program_by_name(obj, 
-                                "bpf_prog_trigger_syscall_prog");
+                                "bpf_test");
     if (!prog1) {
         printf("Failed to find the prog1\n");
         goto cleanup;

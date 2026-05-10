@@ -1,0 +1,99 @@
+Great! Let me show you how everything connects. This is a **perfect example** of a BPF jump table in action!
+
+## The Complete Flow
+
+### **Step 1: Load and Normalize the Switch Value**
+```asm
+2: r1 = 0x0 ll              # Load address of variable 'a'
+4: w1 = *(u32 *)(r1 + 0x0)  # w1 = a (load the value)
+5: w1 += -0x64              # w1 = a - 100 (normalize: subtract min case value)
+6: w2 = w1                  # Save normalized value
+7: *(u64 *)(r10 - 0x20) = r2  # Store to stack
+```
+
+**Key insight**: Your cases are `100, 101, 102, 103, 104, 105, 106, 107` (or similar range starting at 100).
+The compiler subtracts 100 to get indices `0-7` for the jump table.
+
+### **Step 2: Bounds Check**
+```asm
+8: if w1 > 0x7 goto +0x17   # if (normalized_value > 7) goto default (insn 32)
+```
+
+If the value is outside `0-7`, skip to the default case at instruction 32.
+
+### **Step 3: Calculate Jump Table Entry Address**
+```asm
+9:  r2 = *(u64 *)(r10 - 0x20)  # Load normalized value
+10: r2 <<= 0x3                  # r2 *= 8 (each entry is 8 bytes)
+11: r1 = 0x0 ll                 # Load base address of BPF.JT.0.0
+13: r1 += r2                    # r1 = &BPF.JT.0.0 + (index * 8)
+14: r1 = *(u64 *)(r1 + 0x0)     # Load the offset from jump table
+```
+
+### **Step 4: Indirect Jump!**
+```asm
+15: gotox r1                    # Jump to the offset stored in r1
+```
+
+This jumps to one of the case labels (instructions 16, 18, 20, 22, 24, 26, 28, or 30).
+
+### **Step 5: Case Handlers**
+```asm
+16: *(u32 *)(r10 - 0xc) = 0x12  # case 100: ret_user = 18
+17: goto +0x10                   # break (goto instruction 34)
+
+18: *(u32 *)(r10 - 0xc) = 0x6   # case 101: ret_user = 6
+19: goto +0xe                    # break
+
+20: *(u32 *)(r10 - 0xc) = 0x9   # case 102: ret_user = 9
+21: goto +0xc                    # break
+
+22: *(u32 *)(r10 - 0xc) = 0x10  # case 103: ret_user = 16
+23: goto +0xa                    # break
+
+24: *(u32 *)(r10 - 0xc) = 0xe   # case 104: ret_user = 14
+25: goto +0x8                    # break
+
+26: *(u32 *)(r10 - 0xc) = 0x2   # case 105: ret_user = 2
+27: goto +0x6                    # break
+
+28: *(u32 *)(r10 - 0xc) = 0xb   # case 106: ret_user = 11
+29: goto +0x4                    # break
+
+30: *(u32 *)(r10 - 0xc) = 0x7   # case 107: ret_user = 7
+31: goto +0x2                    # break
+
+32: *(u32 *)(r10 - 0xc) = 0x1   # default: ret_user = 1
+33: goto +0x0                    # (falls through)
+```
+
+### **Step 6: After Switch**
+```asm
+34: w3 = *(u32 *)(r10 - 0xc)    # Load ret_user for bpf_printk
+35: r1 = 0x0 ll                  # Load format string
+37: w2 = 0x2b                    # Length = 43 bytes
+38: call 0x6                     # bpf_printk
+39: *(u64 *)(r10 - 0x18) = r0   # Store return value
+40: w0 = 0x0                     # return 0
+41: exit
+```
+
+## Jump Table Entries Explained
+
+```
+BPF.JT.0.0:
+Entry 0: 0x80 = 128 bytes = instruction 16 (case 0: 100)
+Entry 1: 0x90 = 144 bytes = instruction 18 (case 1: 101)
+Entry 2: 0xa0 = 160 bytes = instruction 20 (case 2: 102)
+Entry 3: 0xb0 = 176 bytes = instruction 22 (case 3: 103)
+Entry 4: 0xc0 = 192 bytes = instruction 24 (case 4: 104)
+Entry 5: 0xd0 = 208 bytes = instruction 26 (case 5: 105)
+Entry 6: 0xe0 = 224 bytes = instruction 28 (case 6: 106)
+Entry 7: 0xf0 = 240 bytes = instruction 30 (case 7: 107)
+```
+
+Each BPF instruction is **8 bytes**, so:
+- Instruction 16 = byte offset 16 × 8 = 128 (0x80) ✓
+- Instruction 18 = byte offset 18 × 8 = 144 (0x90) ✓
+- etc.
+

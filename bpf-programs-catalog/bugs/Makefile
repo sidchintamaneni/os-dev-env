@@ -1,11 +1,11 @@
-LINUX := /linux
+LINUX := ../../bpf
 SOURCES := $(wildcard *.kern.c)
 FILES := $(SOURCES:.c=.o)
 USER_SRC := $(wildcard *.user.c)
 USER := $(USER_SRC:.c=)
 BPF-CLANG := clang
-BPF_CLANG_CFLAGS := -target bpf -g -Wall -c
-INCLUDE := -I$(LINUX)/usr/include/ -I$(LINUX)/tools/lib/ -I$(LINUX)/include/ 
+BPF_CLANG_CFLAGS := -target bpf -g -Wall -O2 -c
+INCLUDE := -I$(LINUX)/usr/include/ -I$(LINUX)/tools/lib/
 USER-CFLAGS := -I$(LINUX)/usr/include -I$(LINUX)/tools/lib/ -L$(LINUX)/tools/lib/bpf/
 
 all: $(FILES) $(USER)
