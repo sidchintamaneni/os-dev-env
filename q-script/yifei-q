@@ -98,6 +98,8 @@ guest() {
 	export PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin
     export PATH="/os-dev-env/tools/retsnoop/src/:${PATH}"
     export LD_LIBRARY_PATH=/linux/tools/lib/bpf
+	export PATH=/os-dev-env/llvm-project/prefix/bin:$PATH
+	export LD_LIBRARY_PATH=/os-dev-env/llvm-project/prefix/lib:$LD_LIBRARY_PATH
 
 	say pivot root
 
